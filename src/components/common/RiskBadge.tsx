@@ -3,23 +3,14 @@ interface Props {
 }
 
 export default function RiskBadge({ risk }: Props) {
-  const color =
-    risk === "LOW"
-      ? "#22C55E"
-      : risk === "MEDIUM"
-      ? "#F59E0B"
-      : "#EF4444";
+  let badgeClass = "g-badge-grey";
+
+  if (risk === "LOW") badgeClass = "g-badge-green";
+  else if (risk === "MEDIUM") badgeClass = "g-badge-yellow";
+  else if (risk === "HIGH") badgeClass = "g-badge-red";
 
   return (
-    <span
-      style={{
-        background: color,
-        color: "white",
-        padding: "4px 10px",
-        borderRadius: "20px",
-        fontSize: "12px",
-      }}
-    >
+    <span className={`g-badge ${badgeClass}`}>
       {risk}
     </span>
   );

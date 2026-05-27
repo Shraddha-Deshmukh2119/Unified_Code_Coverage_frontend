@@ -36,33 +36,51 @@ export default function SeverityChart({
     },
   ];
 
-  return (
-    <div
-      style={{
-        background:"#101B31",
-        borderRadius:"12px",
-        padding:"20px",
-        height:"350px",
-      }}
-    >
-      <h2>Severity Breakdown</h2>
+  const colors = [
+    "var(--google-red-600)",
+    "var(--google-yellow-600)",
+    "var(--google-blue-600)"
+  ];
 
-      <ResponsiveContainer
-        width="100%"
-        height={280}
-      >
+  return (
+    <div style={{ height: "350px", display: "flex", flexDirection: "column" }}>
+      <h2 style={{ marginBottom: "16px", fontFamily: "var(--font-display)", fontWeight: 500, fontSize: "16px" }}>
+        Severity Breakdown
+      </h2>
+
+      <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
             data={data}
             dataKey="value"
-            outerRadius={100}
+            cx="50%"
+            cy="50%"
+            outerRadius={90}
+            innerRadius={60}
+            paddingAngle={3}
+            labelLine={false}
+            label={({ name, value }) => value > 0 ? `${name}: ${value}` : ""}
           >
-            <Cell fill="#DC2626" />
-            <Cell fill="#F97316" />
-            <Cell fill="#EAB308" />
+            {data.map((_, index) => (
+              <Cell 
+                key={index} 
+                fill={colors[index % colors.length]} 
+                stroke="white"
+                strokeWidth={2}
+              />
+            ))}
           </Pie>
 
-          <Tooltip />
+          <Tooltip
+            contentStyle={{
+              background: "var(--grey-900)",
+              border: "none",
+              borderRadius: "4px",
+              color: "white",
+              fontSize: "12px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
+            }}
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>

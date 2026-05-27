@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import MetricCard from "../components/cards/MetricCard";
 import CoverageTrendChart from "../components/charts/CoverageTrendChart";
@@ -13,6 +14,7 @@ import {
 } from "../api/dashboardApi";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [summary, setSummary] = useState<any>(null);
   const [trend, setTrend] = useState<any[]>([]);
   const [languages, setLanguages] = useState<any>(null);
@@ -45,90 +47,137 @@ export default function Dashboard() {
 
   return (
     <MainLayout>
-      <h1>Dashboard</h1>
+      <div className="page-subtitle">Platform Metrics</div>
+      <h1 className="page-title">Coverage at a glance</h1>
 
-      <div
-        style={{
+      {/* Primary Metrics Grid */}
+      <div 
+        style={{ 
           display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
+          gridTemplateColumns: "repeat(4, 1fr)",
           gap: "20px",
-          marginTop: "20px",
+          marginBottom: "32px"
         }}
       >
         <MetricCard
           title="Overall Coverage"
           value={`${summary?.overallCoverage ?? "-"}%`}
+          trend={summary?.overallCoverage ? `${(summary.overallCoverage - 80).toFixed(1)}%` : undefined}
+          trendType={summary?.overallCoverage >= 80 ? "up" : "down"}
+          subtitle="Aggregated code coverage"
+          valueColor="var(--google-blue-600)"
         />
 
         <MetricCard
           title="Java Coverage"
           value={`${summary?.javaCoverage ?? "-"}%`}
+          subtitle="JaCoCo coverage rating"
         />
 
         <MetricCard
           title="C++ Coverage"
           value={`${summary?.cppCoverage ?? "-"}%`}
+          subtitle="GCOVR coverage rating"
         />
 
         <MetricCard
-          title="Build Status"
+          title="Latest Build Status"
           value={latestBuild?.status ?? "-"}
+          subtitle={`Build #${latestBuild?.buildNumber ?? "-"} by ${latestBuild?.author?.split(' ')[0] ?? "unknown"}`}
+          trend={latestBuild?.status === "SUCCESS" ? "HEALTHY" : "CRITICAL"}
+          trendType={latestBuild?.status === "SUCCESS" ? "up" : "down"}
+          valueColor={latestBuild?.status === "SUCCESS" ? "var(--google-green-600)" : "var(--google-red-600)"}
         />
       </div>
 
-      <div
+      {/* Charts Grid */}
+      <div 
         style={{
           display: "grid",
-          gridTemplateColumns: "2fr 1fr",
-          gap: "20px",
-          marginTop: "30px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+          gap: "24px",
+          marginBottom: "32px"
         }}
       >
-        <CoverageTrendChart data={trend} />
+        <div className="g-card" style={{ padding: "20px" }}>
+          <CoverageTrendChart data={trend} />
+        </div>
 
-        {languages && (
-          <LanguageDistributionChart
-            javaCoverage={languages.javaCoverage}
-            cppCoverage={languages.cppCoverage}
-          />
-        )}
+        <div className="g-card" style={{ padding: "20px" }}>
+          {languages ? (
+            <LanguageDistributionChart
+              javaCoverage={languages.javaCoverage}
+              cppCoverage={languages.cppCoverage}
+            />
+          ) : (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "350px", color: "var(--text-secondary)" }}>
+              Loading Language data...
+            </div>
+          )}
+        </div>
       </div>
 
-      
-
+      {/* Sonar Summary Section */}
       {sonar && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(5,1fr)",
-            gap: "20px",
-            marginTop: "30px",
-          }}
-        >
-          <MetricCard
-            title="Bugs"
-            value={sonar.bugs}
-          />
+        <div>
+          <div className="page-subtitle" style={{ marginTop: "12px" }}>Code Quality Summary</div>
+          <h2 style={{ marginBottom: "16px", fontSize: "18px", fontWeight: 500 }}>SonarQube Metrics</h2>
+          
+          <div 
+            style={{ 
+              display: "grid",
+              gridTemplateColumns: "repeat(5, 1fr)",
+              gap: "20px"
+            }}
+          >
+            <MetricCard
+              title="Bugs"
+              value={sonar.bugs}
+              subtitle="Click to view & filter bugs"
+              trend={sonar.bugs > 0 ? `${sonar.bugs} issues` : "None"}
+              trendType={sonar.bugs > 0 ? "down" : "up"}
+              valueColor="var(--google-red-600)"
+              onClick={() => navigate("/code-health?filter=BUG")}
+            />
 
-          <MetricCard
-            title="Vulnerabilities"
-            value={sonar.vulnerabilities}
-          />
+            <MetricCard
+              title="Vulnerabilities"
+              value={sonar.vulnerabilities}
+              subtitle="Click to view vulnerabilities"
+              trend={sonar.vulnerabilities > 0 ? "HIGH RISK" : "SECURE"}
+              trendType={sonar.vulnerabilities > 0 ? "down" : "up"}
+              valueColor="var(--google-red-700)"
+              onClick={() => navigate("/code-health?filter=VULNERABILITY")}
+            />
 
-          <MetricCard
-            title="Code Smells"
-            value={sonar.codeSmells}
-          />
+            <MetricCard
+              title="Code Smells"
+              value={sonar.codeSmells}
+              subtitle="Click to view code smells"
+              valueColor="var(--google-blue-600)"
+              onClick={() => navigate("/code-health?filter=CODE_SMELL")}
+            />
 
-          <MetricCard
-            title="Security Rating"
-            value={sonar.securityRating}
-          />
+            <MetricCard
+              title="Security Rating"
+              value={sonar.securityRating}
+              subtitle="Security compliance"
+              trend={sonar.securityRating === "A" ? "PASS" : "FAIL"}
+              trendType={sonar.securityRating === "A" ? "up" : "down"}
+              valueColor={sonar.securityRating === "A" ? "var(--google-green-600)" : "var(--google-red-600)"}
+              onClick={() => navigate("/code-health")}
+            />
 
-          <MetricCard
-            title="Maintainability"
-            value={sonar.maintainabilityRating}
-          />
+            <MetricCard
+              title="Maintainability"
+              value={sonar.maintainabilityRating}
+              subtitle="Technical debt ratio"
+              trend={sonar.maintainabilityRating === "A" ? "EXCELLENT" : "WARNING"}
+              trendType={sonar.maintainabilityRating === "A" ? "up" : "neutral"}
+              valueColor={sonar.maintainabilityRating === "A" ? "var(--google-green-600)" : "var(--google-yellow-600)"}
+              onClick={() => navigate("/code-health")}
+            />
+          </div>
         </div>
       )}
     </MainLayout>

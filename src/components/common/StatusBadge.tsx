@@ -3,21 +3,11 @@ interface Props {
 }
 
 export default function StatusBadge({ status }: Props) {
-  const color =
-    status === "HEALTHY"
-      ? "#22C55E"
-      : "#EF4444";
+  const isHealthy = status === "HEALTHY" || status === "SUCCESS" || status === "PASSED";
+  const badgeClass = isHealthy ? "g-badge-green" : "g-badge-red";
 
   return (
-    <span
-      style={{
-        background: color,
-        color: "white",
-        padding: "4px 10px",
-        borderRadius: "20px",
-        fontSize: "12px",
-      }}
-    >
+    <span className={`g-badge ${badgeClass}`}>
       {status}
     </span>
   );

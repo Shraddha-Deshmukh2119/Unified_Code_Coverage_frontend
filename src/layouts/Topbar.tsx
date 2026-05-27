@@ -1,19 +1,274 @@
-function Topbar() {
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { getLatestBuild } from "../api/dashboardApi";
+import { 
+  GitBranch, 
+  Box, 
+  Database, 
+  LayoutDashboard, 
+  Boxes, 
+  History, 
+  Shield, 
+  HeartPulse, 
+  Brain,
+  Sun,
+  Moon
+} from "lucide-react";
+
+export default function Topbar() {
+  const [latestBuild, setLatestBuild] = useState<any>(null);
+  const [theme, setTheme] = useState<string>(localStorage.getItem("theme") || "light");
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    getLatestBuild()
+      .then((res) => {
+        setLatestBuild(res.data);
+      })
+      .catch(console.error);
+
+    // Apply active theme on load
+    const savedTheme = localStorage.getItem("theme") || "light";
+    if (savedTheme === "dark") {
+      document.body.classList.add("dark-theme");
+    } else {
+      document.body.classList.remove("dark-theme");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "light" ? "dark" : "light";
+    setTheme(nextTheme);
+    localStorage.setItem("theme", nextTheme);
+    if (nextTheme === "dark") {
+      document.body.classList.add("dark-theme");
+    } else {
+      document.body.classList.remove("dark-theme");
+    }
+  };
+
+  const menuItems = [
+    { path: "/", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/modules", label: "Modules", icon: Boxes },
+    { path: "/builds", label: "Builds", icon: History },
+    { path: "/quality-gate", label: "Quality Gate", icon: Shield },
+    { path: "/code-health", label: "Code Health", icon: HeartPulse },
+    { path: "/ai-insights", label: "AI Insights", icon: Brain },
+  ];
+
   return (
     <div
       style={{
-        height: "70px",
-        background: "#101B31",
-        borderBottom: "1px solid #1F2A44",
         display: "flex",
+        justifyContent: "space-between",
         alignItems: "center",
-        padding: "0 20px",
-        color: "white",
+        padding: "0 32px", // Wide Topbar padding
+        background: theme === "dark" ? "#020617" : "#0F1D32",
+        height: "76px", // Slightly wider topbar height
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        borderBottom: theme === "dark" ? "1px solid #1F2937" : "1px solid #1E2E46",
+        boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
+        fontFamily: "'Outfit', sans-serif",
+        transition: "all 0.3s ease"
       }}
     >
-      Unified Code Coverage Dashboard
+      {/* Left side: Brand Logo & Repo Selector */}
+      <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+        <Link 
+          to="/" 
+          style={{ 
+            color: "#FFFFFF", 
+            fontSize: "20px", 
+            fontWeight: 700,
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            letterSpacing: "-0.01em",
+            textDecoration: "none"
+          }}
+        >
+          {/* Orange themed logo icon */}
+          <Database size={22} style={{ color: "var(--bmc-orange)" }} />
+          <span style={{ background: "linear-gradient(90deg, #ffffff, #f3f4f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            CodeQuality AI
+          </span>
+        </Link>
+
+        {/* Dynamic Project Context Selector */}
+        {latestBuild && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              background: "rgba(255, 107, 0, 0.1)",
+              padding: "5px 10px",
+              borderRadius: "6px",
+              color: "#E2E8F0",
+              fontSize: "12.5px",
+              border: "1px solid rgba(255, 107, 0, 0.3)",
+              cursor: "default"
+            }}
+            title={`Active Project: ${latestBuild.repositoryName}`}
+          >
+            <Box size={13} style={{ color: "var(--bmc-orange)" }} />
+            <span style={{ fontWeight: 600 }}>
+              {latestBuild.repositoryName.split(" ")[0]}...
+            </span>
+            <span style={{ color: "rgba(255,255,255,0.2)" }}>|</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "3px", color: "#CBD5E1" }}>
+              <GitBranch size={12} />
+              <span>{latestBuild.branch}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Middle side: Centered Google Cloud-style Navigation Tabs with Icons */}
+      <div 
+        style={{ 
+          display: "flex", 
+          gap: "28px", 
+          height: "100%", 
+          alignItems: "center",
+          fontFamily: "'Inter', sans-serif"
+        }}
+      >
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = item.path === "/" 
+            ? location.pathname === "/" 
+            : location.pathname.startsWith(item.path);
+
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              style={{
+                color: isActive ? "#FFFFFF" : "#94A3B8",
+                fontWeight: isActive ? 600 : 500,
+                fontSize: "14px", // More visible
+                textDecoration: "none",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "0 4px",
+                borderBottom: isActive ? "3px solid var(--bmc-orange)" : "3px solid transparent", // Orange BMC theme active
+                transition: "all 0.2s ease",
+                marginTop: "3px" // visual balance
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--bmc-orange)"; // BMC Orange on hover
+                const icon = e.currentTarget.querySelector("svg");
+                if (icon) icon.style.color = "var(--bmc-orange)";
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.color = "#94A3B8";
+                  const icon = e.currentTarget.querySelector("svg");
+                  if (icon) icon.style.color = "#94A3B8";
+                } else {
+                  e.currentTarget.style.color = "#FFFFFF";
+                  const icon = e.currentTarget.querySelector("svg");
+                  if (icon) icon.style.color = "var(--bmc-orange)";
+                }
+              }}
+            >
+              {/* Feature Icon - Larger size for visibility */}
+              <Icon size={18} style={{ color: isActive ? "var(--bmc-orange)" : "#94A3B8", transition: "color 0.2s" }} />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Right side: Dark Mode & Action Buttons */}
+      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        {/* Dark/Light mode stateful toggle icon button */}
+        <button
+          onClick={toggleTheme}
+          style={{
+            background: "none",
+            border: "none",
+            color: "#FFFFFF",
+            cursor: "pointer",
+            padding: "8px",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "rgba(255, 255, 255, 0.08)",
+            transition: "all 0.2s ease"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(255, 107, 0, 0.2)";
+            e.currentTarget.style.color = "var(--bmc-orange)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.08)";
+            e.currentTarget.style.color = "#FFFFFF";
+          }}
+          title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
+        >
+          {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+        </button>
+
+        <button
+          onClick={() => navigate("/modules")}
+          style={{
+            backgroundColor: "var(--bmc-orange)", // Orange BMC theme button
+            color: "#FFFFFF",
+            border: "none",
+            borderRadius: "4px",
+            padding: "8px 16px",
+            fontSize: "13.5px",
+            fontWeight: 600,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+            transition: "background-color 0.15s ease",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.2)"
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bmc-orange-hover)")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--bmc-orange)")}
+        >
+          <span>Explore Coverage</span>
+          <span style={{ fontSize: "11px" }}>&gt;</span>
+        </button>
+
+        <button
+          onClick={() => navigate("/builds")}
+          style={{
+            backgroundColor: "transparent",
+            color: "#FFFFFF",
+            border: "1px solid #475569",
+            borderRadius: "4px",
+            padding: "8px 16px",
+            fontSize: "13.5px",
+            fontWeight: 500,
+            cursor: "pointer",
+            transition: "all 0.15s ease"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)";
+            e.currentTarget.style.borderColor = "#94A3B8";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent";
+            e.currentTarget.style.borderColor = "#475569";
+          }}
+        >
+          View Builds
+        </button>
+      </div>
     </div>
   );
 }
 
-export default Topbar;

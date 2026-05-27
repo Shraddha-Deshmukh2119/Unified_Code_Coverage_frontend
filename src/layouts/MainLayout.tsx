@@ -1,32 +1,38 @@
 import type { ReactNode } from "react";
-import Sidebar from "../layouts/Sidebar.tsx";
-import Topbar from "../layouts/Topbar";
+import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import Topbar from "./Topbar";
+import Footer from "./Footer";
 
 interface Props {
   children: ReactNode;
 }
 
 function MainLayout({ children }: Props) {
+  const location = useLocation();
+  const [loading, setLoading] = useState(true);
+
+  // Trigger page transition loading animation on route changes
+  useEffect(() => {
+    setLoading(true);
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 450); // fast transition
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
+
   return (
-    <div
-      style={{
-        display: "flex",
-        background: "#08111F",
-      }}
-    >
-      <Sidebar />
-
-      <div style={{ flex: 1 }}>
-        <Topbar />
-
-        <div
-          style={{
-            padding: "20px",
-            color: "white",
-          }}
-        >
+    <div className="app-container">
+      {/* Top transition blue loading indicator bar */}
+      {loading && <div className="page-loader-bar" />}
+      
+      <Topbar />
+      
+      <div className="main-wrapper">
+        <main className="content-pane">
           {children}
-        </div>
+        </main>
+        <Footer />
       </div>
     </div>
   );

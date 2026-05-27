@@ -2,39 +2,25 @@ interface Props {
   severity: string;
 }
 
-export default function SeverityBadge({
-  severity,
-}: Props) {
-
-  let color = "#64748B";
+export default function SeverityBadge({ severity }: Props) {
+  let badgeClass = "g-badge-grey";
 
   switch (severity) {
     case "CRITICAL":
-      color = "#EF4444";
+      badgeClass = "g-badge-red";
       break;
-
     case "MAJOR":
-      color = "#F97316";
+      badgeClass = "g-badge-yellow";
       break;
-
     case "MINOR":
-      color = "#EAB308";
+      badgeClass = "g-badge-blue";
       break;
-
     default:
-      color = "#64748B";
+      badgeClass = "g-badge-grey";
   }
 
   return (
-    <span
-      style={{
-        background: color,
-        color: "white",
-        padding: "4px 10px",
-        borderRadius: "20px",
-        fontSize: "12px",
-      }}
-    >
+    <span className={`g-badge ${badgeClass}`}>
       {severity}
     </span>
   );

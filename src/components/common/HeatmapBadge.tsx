@@ -2,24 +2,22 @@ interface Props {
   color: string;
 }
 
-export default function HeatmapBadge({
-  color,
-}: Props) {
-  const background =
+export default function HeatmapBadge({ color }: Props) {
+  const hexColor =
     color === "GREEN"
-      ? "#22C55E"
+      ? "var(--google-green-600)"
       : color === "YELLOW"
-      ? "#F59E0B"
-      : "#EF4444";
+      ? "var(--google-yellow-600)"
+      : "var(--google-red-600)";
 
   return (
     <div
+      className="dot-indicator"
       style={{
-        width: "18px",
-        height: "18px",
-        borderRadius: "50%",
-        background,
+        color: hexColor,
+        backgroundColor: hexColor,
       }}
+      title={`Heatmap Status: ${color}`}
     />
   );
 }

@@ -1,4 +1,5 @@
 import MainLayout from "../layouts/MainLayout";
+import MetricCard from "../components/cards/MetricCard";
 
 export default function AIInsights() {
   const recommendations = [
@@ -26,261 +27,182 @@ export default function AIInsights() {
 
   return (
     <MainLayout>
-      <h1
-        style={{
-          marginBottom: "10px",
-        }}
-      >
-        Coverage Intelligence Center
-      </h1>
-
+      <div className="page-subtitle">Coverage Intelligence Center</div>
+      <h1 className="page-title">AI Coverage Insights</h1>
       <p
         style={{
-          color: "#94A3B8",
-          marginBottom: "30px",
+          color: "var(--text-secondary)",
+          marginBottom: "24px",
+          marginTop: "-16px",
+          fontSize: "14px"
         }}
       >
-        AI-powered recommendations,
-        risk detection and coverage
-        intelligence.
+        AI-powered recommendations, predictive risk analysis, and coverage optimizations.
       </p>
 
-      {/* KPI Cards */}
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(4,1fr)",
-          gap: "20px",
-          marginBottom: "30px",
-        }}
-      >
-        <Card
-          title="AI Risk Score"
+      {/* KPI Cards Grid */}
+      <div className="grid-cols-4" style={{ marginBottom: "24px" }}>
+        <MetricCard
+          title="AI Risk Index"
           value="7.2 / 10"
-          color="#F97316"
+          subtitle="Overall repo risk rating"
+          trend="ATTENTION"
+          trendType="down"
         />
 
-        <Card
+        <MetricCard
           title="High Risk Files"
           value="12"
-          color="#EF4444"
+          subtitle="Low coverage + high complexity"
+          trend="+2 files"
+          trendType="down"
         />
 
-        <Card
+        <MetricCard
           title="Coverage Gaps"
           value="48"
-          color="#EAB308"
+          subtitle="Untested logical branches"
         />
 
-        <Card
+        <MetricCard
           title="Recommendations"
           value="15"
-          color="#22C55E"
+          subtitle="Actionable test improvements"
+          trend="15 pending"
+          trendType="up"
         />
       </div>
 
-      {/* Smart Insights */}
+      {/* Smart Insights Cards */}
+      <h2 style={{ fontSize: "16px", marginBottom: "16px" }}>Smart Insights</h2>
+      <div className="grid-cols-3" style={{ marginBottom: "24px", gap: "20px" }}>
+        <div className="g-card" style={{ borderLeft: "4px solid var(--google-yellow-600)" }}>
+          <h3 style={{ fontSize: "15px", marginBottom: "8px" }}>Coverage Risk</h3>
+          <p style={{ fontSize: "13px", lineHeight: 1.5 }}>
+            Branch coverage is critically lower than line coverage in security modules. Add tests for conditional paths and exception handling.
+          </p>
+        </div>
 
-      <h2>Smart Insights</h2>
+        <div className="g-card" style={{ borderLeft: "4px solid var(--google-blue-600)" }}>
+          <h3 style={{ fontSize: "15px", marginBottom: "8px" }}>Code Quality Alert</h3>
+          <p style={{ fontSize: "13px", lineHeight: 1.5 }}>
+            282 code smells detected. Prioritize structural refactoring in frequently modified controller and auth classes.
+          </p>
+        </div>
 
+        <div className="g-card" style={{ borderLeft: "4px solid var(--google-red-600)" }}>
+          <h3 style={{ fontSize: "15px", marginBottom: "8px" }}>Security Concern</h3>
+          <p style={{ fontSize: "13px", lineHeight: 1.5 }}>
+            Overall security rating is currently below target. Review database queries for potential SQL injection vulnerabilities.
+          </p>
+        </div>
+      </div>
+
+      {/* Coverage Prediction Section */}
       <div
+        className="g-card"
         style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(3,1fr)",
-          gap: "20px",
-          marginTop: "15px",
-          marginBottom: "30px",
+          borderLeft: "6px solid var(--google-green-600)",
+          marginBottom: "24px"
         }}
       >
-        <InsightCard
-          title="Coverage Risk"
-          description="
-Branch coverage is lower than line coverage. Add tests for conditional paths and exception handling."
-        />
-
-        <InsightCard
-          title="Code Quality Alert"
-          description="
-282 code smells detected. Prioritize cleanup in frequently modified modules."
-        />
-
-        <InsightCard
-          title="Security Concern"
-          description="
-Security rating is below target. Review authentication and validation flows."
-        />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>
+              Coverage Prediction
+            </span>
+            <h3 style={{ color: "var(--google-green-700)", fontSize: "20px", marginTop: "4px", fontWeight: 600 }}>
+              Potential Gain: +7.9%
+            </h3>
+          </div>
+          <div style={{ display: "flex", gap: "24px", textAlign: "right" }}>
+            <div>
+              <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>Current Coverage</span>
+              <p style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-primary)" }}>34.6%</p>
+            </div>
+            <div>
+              <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>Target Coverage</span>
+              <p style={{ fontSize: "16px", fontWeight: 600, color: "var(--google-green-700)" }}>42.5%</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Coverage Prediction */}
+      {/* Recommendations Table */}
+      <div className="g-card" style={{ marginBottom: "24px" }}>
+        <h2 style={{ fontSize: "16px", marginBottom: "12px" }}>Test Recommendations</h2>
 
-      <div
-        style={{
-          background: "#101B31",
-          padding: "25px",
-          borderRadius: "12px",
-          marginBottom: "30px",
-        }}
-      >
-        <h2>Coverage Prediction</h2>
+        <div className="g-table-container" style={{ marginTop: 0 }}>
+          <table className="g-table">
+            <thead>
+              <tr>
+                <th>File Name</th>
+                <th>Priority</th>
+                <th>Suggested Test Types</th>
+              </tr>
+            </thead>
 
-        <h3
-          style={{
-            color: "#22C55E",
-          }}
-        >
-          Potential Gain: +7.9%
-        </h3>
+            <tbody>
+              {recommendations.map((item, index) => {
+                const badgeClass = 
+                  item.priority === "HIGH" 
+                    ? "g-badge-red" 
+                    : item.priority === "MEDIUM" 
+                    ? "g-badge-yellow" 
+                    : "g-badge-grey";
 
-        <p>
-          Current Coverage: 34.6%
-        </p>
-
-        <p>
-          Estimated Coverage After
-          Recommendations: 42.5%
-        </p>
+                return (
+                  <tr key={index}>
+                    <td style={{ fontWeight: 500 }}>{item.file}</td>
+                    <td>
+                      <span className={`g-badge ${badgeClass}`}>
+                        {item.priority}
+                      </span>
+                    </td>
+                    <td>{item.test}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* Recommendations */}
-
+      {/* Coming Soon Callout */}
       <div
+        className="g-card"
         style={{
-          background: "#101B31",
-          borderRadius: "12px",
-          padding: "20px",
-          marginBottom: "30px",
-        }}
-      >
-        <h2>
-          Test Recommendations
-        </h2>
-
-        <table
-          style={{
-            width: "100%",
-          }}
-        >
-          <thead>
-            <tr>
-              <th>File</th>
-              <th>Priority</th>
-              <th>Suggested Tests</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {recommendations.map(
-              (item, index) => (
-                <tr key={index}>
-                  <td>{item.file}</td>
-
-                  <td>
-                    {item.priority}
-                  </td>
-
-                  <td>{item.test}</td>
-                </tr>
-              )
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Coming Soon */}
-
-      <div
-        style={{
-          background: "#172554",
-          padding: "30px",
-          borderRadius: "12px",
+          background: "var(--google-blue-50)",
+          border: "1px dashed var(--google-blue-600)",
           textAlign: "center",
+          padding: "32px 24px"
         }}
       >
-        <h2>
-          AI Engine Under Development
+        <h2 style={{ color: "var(--google-blue-700)", fontSize: "18px", fontWeight: 600, marginBottom: "8px" }}>
+          AI Reasoning Engine Under Development
         </h2>
 
-        <p>
-          Upcoming Features:
+        <p style={{ color: "var(--google-blue-700)", fontSize: "13.5px", maxWidth: "600px", margin: "0 auto 16px" }}>
+          Upcoming features integrate large language models directly into the pipeline to auto-generate pull request test suites.
         </p>
 
-        <ul
-          style={{
-            listStyle: "none",
+        <div 
+          style={{ 
+            display: "flex", 
+            justifyContent: "center", 
+            gap: "16px 32px", 
+            flexWrap: "wrap",
+            fontSize: "12.5px",
+            fontWeight: 600,
+            color: "var(--google-blue-600)"
           }}
         >
-          <li>
-            LLM Test Generation
-          </li>
-
-          <li>
-            Risk Scoring Engine
-          </li>
-
-          <li>
-            Predictive Coverage
-          </li>
-
-          <li>
-            Smart Refactoring
-            Suggestions
-          </li>
-        </ul>
+          <span>✦ LLM Test Generation</span>
+          <span>✦ Auto-Pruning Engine</span>
+          <span>✦ Predictive Path Analytics</span>
+          <span>✦ Automated Vulnerability Fixes</span>
+        </div>
       </div>
     </MainLayout>
   );
-}
-
-function Card({
-  title,
-  value,
-  color,
-}: any) {
-  return (
-    <div
-      style={{
-        background: "#101B31",
-        padding: "20px",
-        borderRadius: "12px",
-      }}
-    >
-      <h4
-        style={{
-          color,
-        }}
-      >
-        {title}
-      </h4>
-
-      <h2>{value}</h2>
-    </div>
-  );
-}
-
-function InsightCard({
-  title,
-  description,
-}: any) {
-  return (
-    <div
-      style={{
-        background: "#101B31",
-        padding: "20px",
-        borderRadius: "12px",
-      }}
-    >
-      <h3>{title}</h3>
-
-      <p
-        style={{
-          color: "#94A3B8",
-        }}
-      >
-        {description}
-      </p>
-    </div>
-  );
-}
+}

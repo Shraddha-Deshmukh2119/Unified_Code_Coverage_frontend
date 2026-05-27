@@ -62,207 +62,179 @@ console.log("Filter:", statusFilter);
 console.log("Search:", search);
 console.log("Filtered:", filteredHistory);
   return (
-    
     <MainLayout>
-      <h1>Quality Gate</h1>
+      <div className="page-subtitle">Quality Analysis</div>
+      <h1 className="page-title">Quality Gate</h1>
 
+      {/* Main Status Panel */}
       <div
+        className="g-card"
         style={{
-          background:
-            gate.status === "PASSED"
-              ? "#22C55E"
-              : "#EF4444",
-
-          color: "white",
-
-          padding: "25px",
-
-          borderRadius: "12px",
-
-          marginBottom: "25px",
+          borderLeft: gate.status === "PASSED" ? "6px solid var(--google-green-600)" : "6px solid var(--google-red-600)",
+          marginBottom: "24px",
+          padding: "24px"
         }}
       >
-        <h2>{gate.status}</h2>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Current Gate Status
+            </span>
+            <h2 style={{ fontSize: "28px", fontWeight: 600, color: gate.status === "PASSED" ? "var(--google-green-700)" : "var(--google-red-700)", marginTop: "4px" }}>
+              {gate.status}
+            </h2>
+          </div>
 
-        <h3>
-          Quality Score:
-          {" "}
-          {gate.score}%
-        </h3>
+          <div style={{ textAlign: "right" }}>
+            <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>Quality Score</span>
+            <h2 style={{ fontSize: "32px", fontWeight: 600, color: "var(--text-primary)" }}>
+              {gate.score}%
+            </h2>
+          </div>
+        </div>
 
-        <p>
-          Passed Rules:
-          {" "}
-          {gate.passedRules}
-        </p>
-
-        <p>
-          Failed Rules:
-          {" "}
-          {gate.failedRules}
-        </p>
-      </div>
-
-      <div
-        style={{
-          background: "#101B31",
-
-          borderRadius: "12px",
-
-          padding: "20px",
-
-          marginBottom: "25px",
-        }}
-      >
-        <h2>Rule Evaluation</h2>
-
-        <table
-          style={{
-            width: "100%",
+        {/* Counter cards inside panel */}
+        <div 
+          style={{ 
+            display: "flex", 
+            gap: "24px", 
+            marginTop: "20px", 
+            borderTop: "1px solid var(--grey-100)", 
+            paddingTop: "16px",
+            fontSize: "13px",
+            color: "var(--text-secondary)" 
           }}
         >
-          <thead>
-            <tr>
-              <th>Rule</th>
-              <th>Expected</th>
-              <th>Actual</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {gate.rules.map(
-              (
-                rule: any,
-                index: number
-              ) => (
-                <tr key={index}>
-                  <td>{rule.name}</td>
-
-                  <td>
-                    {rule.expected}
-                  </td>
-
-                  <td>
-                    {rule.actual}
-                  </td>
-
-                  <td>
-                    <RuleStatusBadge
-                      status={
-                        rule.status
-                      }
-                    />
-                  </td>
-                </tr>
-              )
-            )}
-          </tbody>
-        </table>
+          <div>
+            Passed Rules: <strong style={{ color: "var(--google-green-700)", fontSize: "15px" }}>{gate.passedRules}</strong>
+          </div>
+          <div>
+            Failed Rules: <strong style={{ color: "var(--google-red-700)", fontSize: "15px" }}>{gate.failedRules}</strong>
+          </div>
+        </div>
       </div>
 
-      <div
+      {/* Rule Evaluation Card */}
+      <div className="g-card" style={{ marginBottom: "24px" }}>
+        <h2 style={{ fontSize: "16px", marginBottom: "12px" }}>Rule Evaluation</h2>
+        
+        <div className="g-table-container" style={{ marginTop: 0 }}>
+          <table className="g-table">
+            <thead>
+              <tr>
+                <th>Rule Name</th>
+                <th>Expected Threshold</th>
+                <th>Actual Metric</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {gate.rules.map((rule: any, index: number) => (
+                <tr key={index}>
+                  <td style={{ fontWeight: 500 }}>{rule.name}</td>
+                  <td>{rule.expected}</td>
+                  <td>{rule.actual}</td>
+                  <td>
+                    <RuleStatusBadge status={rule.status} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Quality Gate History & Charts */}
+      <div 
         style={{
-          background: "#101B31",
-
-          borderRadius: "12px",
-
-          padding: "20px",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+          gap: "24px",
+          alignItems: "start"
         }}
       >
-        <QualityScoreTrendChart data={history} />
-        <h2>
-          Quality Gate History
-        </h2>
+        {/* Quality score Trend Card */}
+        <div className="g-card" style={{ padding: "20px" }}>
+          <QualityScoreTrendChart data={history} />
+        </div>
 
-        <div
-  style={{
-    display: "flex",
-    gap: "10px",
-    marginBottom: "20px",
-  }}
->
-  <input
-    type="text"
-    placeholder="Search Build Number"
-    value={search}
-    onChange={(e) =>
-      setSearch(e.target.value)
-    }
-    style={{
-      padding: "10px",
-      borderRadius: "8px",
-      flex: 1,
-    }}
-  />
+        {/* Historical Runs log card */}
+        <div className="g-card">
+          <h2 style={{ fontSize: "16px", marginBottom: "16px" }}>Quality Gate History</h2>
 
-  <select
-    value={statusFilter}
-    onChange={(e) =>
-      setStatusFilter(e.target.value)
-    }
-  >
-    <option value="ALL">
-      All
-    </option>
+          {/* Filters inside card */}
+          <div className="flex-row-wrap" style={{ marginBottom: "16px" }}>
+            <input
+              type="text"
+              placeholder="Search Build..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="g-input"
+              style={{ flex: 1, padding: "8px 12px", minWidth: "120px" }}
+            />
 
-    <option value="PASSED">
-      Passed
-    </option>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="g-select"
+              style={{ padding: "8px 12px", minWidth: "110px" }}
+            >
+              <option value="ALL">All Status</option>
+              <option value="PASSED">Passed</option>
+              <option value="FAILED">Failed</option>
+            </select>
+          </div>
 
-    <option value="FAILED">
-      Failed
-    </option>
-  </select>
-</div>
-
-        {filteredHistory.map((item, index) => (
-  <div
-    key={`${item.buildNumber}-${index}`}
-            style={{
-              borderBottom:
-                "1px solid #1F2A44",
-
-              padding:
-                "15px 0",
+          {/* Historical Runs Log feed */}
+          <div 
+            style={{ 
+              display: "flex", 
+              flexDirection: "column", 
+              gap: "10px", 
+              maxHeight: "350px", 
+              overflowY: "auto",
+              paddingRight: "4px"
             }}
           >
-            <h3>
-              Build #
-              {item.buildNumber}
-            </h3>
+            {filteredHistory.length > 0 ? (
+              filteredHistory.map((item, index) => (
+                <div
+                  key={`${item.buildNumber}-${index}`}
+                  style={{
+                    border: "1px solid var(--grey-200)",
+                    borderRadius: "6px",
+                    padding: "12px 14px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    backgroundColor: "var(--grey-20)"
+                  }}
+                >
+                  <div>
+                    <strong style={{ display: "block", fontSize: "14px", color: "var(--text-primary)" }}>
+                      Build #{item.buildNumber}
+                    </strong>
+                    <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+                      Score: {item.score}% | Coverage: {item.coverage}%
+                    </span>
+                    <span style={{ display: "block", fontSize: "11px", color: "var(--text-secondary)", marginTop: "2px" }}>
+                      Bugs: {item.bugs} | Vuln: {item.vulnerabilities}
+                    </span>
+                  </div>
 
-            <p>
-              Status:
-              {" "}
-              {item.status}
-            </p>
-
-            <p>
-              Score:
-              {" "}
-              {item.score}%
-            </p>
-
-            <p>
-              Coverage:
-              {" "}
-              {item.coverage}%
-            </p>
-
-            <p>
-              Bugs:
-              {" "}
-              {item.bugs}
-            </p>
-
-            <p>
-              Vulnerabilities:
-              {" "}
-              {item.vulnerabilities}
-            </p>
+                  <span className={`g-badge ${item.status === "PASSED" ? "g-badge-green" : "g-badge-red"}`}>
+                    {item.status}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div style={{ textAlign: "center", padding: "20px", color: "var(--text-secondary)" }}>
+                No records matched filters.
+              </div>
+            )}
           </div>
-        ))}
+        </div>
       </div>
     </MainLayout>
   );

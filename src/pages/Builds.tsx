@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 
 import MainLayout from "../layouts/MainLayout";
-
 import { getBuildHistory } from "../api/dashboardApi";
+import MetricCard from "../components/cards/MetricCard";
+import StatusBadge from "../components/common/StatusBadge";
 
 export default function Builds() {
   const [builds, setBuilds] = useState<any[]>([]);
@@ -28,94 +29,107 @@ export default function Builds() {
 
   return (
     <MainLayout>
-      <h1>Build History</h1>
+      <div className="page-subtitle">Repository Operations</div>
+      <h1 className="page-title">Build History</h1>
 
-      <div
-        style={{
-          display: "flex",
-          gap: "20px",
-          marginBottom: "20px",
-        }}
-      >
-        <div
-          style={{
-            background: "#101B31",
-            padding: "20px",
-            borderRadius: "12px",
-          }}
-        >
-          Total Builds
-          <h2>{builds.length}</h2>
-        </div>
+      {/* KPI Cards Row */}
+      <div className="grid-cols-4" style={{ marginBottom: "24px" }}>
+        <MetricCard
+          title="Total Builds"
+          value={builds.length}
+          subtitle="All recorded pipeline runs"
+        />
 
-        <div
-          style={{
-            background: "#101B31",
-            padding: "20px",
-            borderRadius: "12px",
-          }}
-        >
-          Latest Build
-          <h2>
-            {builds[0]?.buildNumber}
-          </h2>
-        </div>
+        <MetricCard
+          title="Latest Build"
+          value={builds[0]?.buildNumber ? `#${builds[0].buildNumber}` : "-"}
+          subtitle={builds[0] ? `Status: ${builds[0].status}` : undefined}
+          trend={builds[0]?.status === "SUCCESS" ? "SUCCESS" : undefined}
+          trendType={builds[0]?.status === "SUCCESS" ? "up" : "down"}
+        />
       </div>
 
-      <input
-        type="text"
-        placeholder="Search Build Number"
-        value={search}
-        onChange={(e) =>
-          setSearch(e.target.value)
-        }
-        style={{
-          width: "100%",
-          padding: "12px",
-          marginBottom: "20px",
-          borderRadius: "10px",
-        }}
-      />
+      {/* Search Input */}
+      <div style={{ marginBottom: "24px", display: "flex" }}>
+        <input
+          type="text"
+          placeholder="Filter build history by build number..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="g-input"
+          style={{ width: "100%", padding: "12px" }}
+        />
+      </div>
 
-      {filteredBuilds.map((build) => (
-        <div
-          key={build.buildId}
-          style={{
-            background: "#101B31",
-            borderRadius: "12px",
-            padding: "20px",
-            marginBottom: "15px",
-          }}
-        >
-          <h3>
-            Build #{build.buildNumber}
-          </h3>
+      {/* Builds Feed */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        {filteredBuilds.length > 0 ? (
+          filteredBuilds.map((build) => (
+            <div
+              key={build.buildId}
+              className="g-card"
+              style={{
+                padding: "20px"
+              }}
+            >
+              {/* Build Title header */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  borderBottom: "1px solid var(--grey-100)",
+                  paddingBottom: "10px",
+                  marginBottom: "12px"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <h3 style={{ margin: 0, fontFamily: "var(--font-display)", fontWeight: 500, fontSize: "16px" }}>
+                    Build #{build.buildNumber}
+                  </h3>
+                  <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+                    {build.repositoryName}
+                  </span>
+                </div>
+                
+                <StatusBadge status={build.status} />
+              </div>
 
-          <p>
-            Status: {build.status}
-          </p>
+              {/* Stats details */}
+              <div 
+                style={{ 
+                  display: "grid", 
+                  gridTemplateColumns: "1fr 1fr 1fr", 
+                  gap: "16px",
+                  fontSize: "13px",
+                  color: "var(--text-secondary)"
+                }}
+              >
+                <div>
+                  <span style={{ display: "block", fontSize: "11px", textTransform: "uppercase", fontWeight: 600 }}>Coverage</span>
+                  <strong style={{ fontSize: "16px", color: "var(--text-primary)", fontWeight: 600 }}>{build.coverage}%</strong>
+                </div>
 
-          <p>
-            Coverage:
-            {" "}
-            {build.coverage}%
-          </p>
+                <div>
+                  <span style={{ display: "block", fontSize: "11px", textTransform: "uppercase", fontWeight: 600 }}>Branch</span>
+                  <strong style={{ fontSize: "14px", color: "var(--text-primary)", fontWeight: 500 }}>{build.branch ?? "main"}</strong>
+                </div>
 
-          <p>
-            Repository:
-            {" "}
-            {build.repositoryName}
-          </p>
-
-          <p>
-            Time:
-            {" "}
-            {new Date(
-              build.buildTime
-            ).toLocaleString()}
-          </p>
-        </div>
-      ))}
+                <div>
+                  <span style={{ display: "block", fontSize: "11px", textTransform: "uppercase", fontWeight: 600 }}>Execution Time</span>
+                  <span style={{ fontSize: "13px", color: "var(--text-primary)" }}>
+                    {new Date(build.buildTime).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="g-card" style={{ textAlign: "center", padding: "40px", color: "var(--text-secondary)" }}>
+            No builds found matching that build number.
+          </div>
+        )}
+      </div>
     </MainLayout>
   );
 }
