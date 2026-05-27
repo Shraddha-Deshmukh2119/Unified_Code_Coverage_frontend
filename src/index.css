@@ -85,15 +85,19 @@
   --google-blue-50: #1a2035;
   --google-blue-100: #1d4ed8;
   --google-blue-600: #3b82f6;
+  --google-blue-700: #60a5fa; /* High-contrast bright blue for dark mode */
   
   --google-red-50: #2d1a1a;
   --google-red-100: #7f1d1d;
+  --google-red-700: #f87171; /* High-contrast bright red for dark mode */
   
   --google-green-50: #14281a;
   --google-green-100: #064e3b;
+  --google-green-700: #34d399; /* High-contrast bright green for dark mode */
   
   --google-yellow-50: #2d2615;
   --google-yellow-100: #78350f;
+  --google-yellow-700: #fbbf24; /* High-contrast bright yellow for dark mode */
   
   --bmc-orange: #ff7c1f;
   --bmc-orange-hover: #ff9142;
@@ -651,5 +655,9 @@ a:hover {
 }
 .dark-theme td {
   color: var(--grey-800);
+}
+.dark-theme .g-table-container {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
 }
 

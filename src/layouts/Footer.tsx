@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="g-footer">
       <div>
-        <span>&copy; {new Date().getFullYear()} CodeQuality AI Console. All rights reserved.</span>
+        <span>&copy; {new Date().getFullYear()} Unified Coverage Intelligence. All rights reserved.</span>
       </div>
       <div className="g-footer-links">
         <a 

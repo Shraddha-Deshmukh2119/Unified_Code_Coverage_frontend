@@ -95,7 +95,7 @@ export default function Topbar() {
           {/* Orange themed logo icon */}
           <Database size={22} style={{ color: "var(--bmc-orange)" }} />
           <span style={{ background: "linear-gradient(90deg, #ffffff, #f3f4f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-            CodeQuality AI
+            Unified Coverage Intelligence
           </span>
         </Link>
 
