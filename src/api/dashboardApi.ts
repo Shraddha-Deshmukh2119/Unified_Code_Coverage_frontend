@@ -48,4 +48,8 @@ export const getSonarIssueDetails = (
     `/api/dashboard/sonar-issues/${issueKey}/source`
   );
 
+export const getAIMetrics = () =>
+  api.get("/api/dashboard/ai-metrics");
 
+export const getAIInsights = () =>
+  api.get("/api/dashboard/ai-insights");
