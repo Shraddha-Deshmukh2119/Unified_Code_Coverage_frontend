@@ -93,10 +93,24 @@ export default function Topbar() {
           }}
         >
           {/* Orange themed logo icon */}
-          <Database size={22} style={{ color: "var(--bmc-orange)" }} />
-          <span style={{ background: "linear-gradient(90deg, #ffffff, #f3f4f6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-            Unified Coverage Intelligence
-          </span>
+          <Database size={20} style={{ color: "var(--bmc-orange)" }} />
+          <span
+  style={{
+    background: "linear-gradient(90deg, #ffffff, #d1d5db)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+
+    whiteSpace: "nowrap",
+    fontSize: "clamp(14px, 1.5vw, 20px)",
+    fontWeight: 600,
+    letterSpacing: "-0.3px",
+
+    display: "flex",
+    alignItems: "center",
+  }}
+>
+  Unified Coverage Intelligence
+</span>
         </Link>
 
         {/* Dynamic Project Context Selector */}
@@ -219,54 +233,7 @@ export default function Topbar() {
           {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
         </button>
 
-        <button
-          onClick={() => navigate("/modules")}
-          style={{
-            backgroundColor: "var(--bmc-orange)", // Orange BMC theme button
-            color: "#FFFFFF",
-            border: "none",
-            borderRadius: "4px",
-            padding: "8px 16px",
-            fontSize: "13.5px",
-            fontWeight: 600,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            transition: "background-color 0.15s ease",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.2)"
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bmc-orange-hover)")}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--bmc-orange)")}
-        >
-          <span>Explore Coverage</span>
-          <span style={{ fontSize: "11px" }}>&gt;</span>
-        </button>
-
-        <button
-          onClick={() => navigate("/builds")}
-          style={{
-            backgroundColor: "transparent",
-            color: "#FFFFFF",
-            border: "1px solid #475569",
-            borderRadius: "4px",
-            padding: "8px 16px",
-            fontSize: "13.5px",
-            fontWeight: 500,
-            cursor: "pointer",
-            transition: "all 0.15s ease"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)";
-            e.currentTarget.style.borderColor = "#94A3B8";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "transparent";
-            e.currentTarget.style.borderColor = "#475569";
-          }}
-        >
-          View Builds
-        </button>
+       
       </div>
     </div>
   );

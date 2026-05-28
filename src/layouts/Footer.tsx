@@ -8,7 +8,7 @@ export default function Footer() {
       </div>
       <div className="g-footer-links">
         <a 
-          href="https://github.com/Prathamesh-Jawahire/Frontend-Unified-Code-Coverage" 
+          href="https://github.com/Prathamesh-Jawahire" 
           target="_blank" 
           rel="noopener noreferrer"
           className="g-footer-link"

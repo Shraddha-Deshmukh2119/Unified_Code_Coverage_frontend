@@ -1,58 +1,205 @@
 import {
+  ResponsiveContainer,
   LineChart,
   Line,
   XAxis,
   YAxis,
-  Tooltip,
-  ResponsiveContainer,
   CartesianGrid,
+  Tooltip,
+  Legend,
 } from "recharts";
 
-export default function QualityScoreTrendChart({ data }: any) {
+export default function QualityScoreTrendChart({
+  data,
+}: any) {
+
+  const formattedData =
+    data.map(
+      (
+        item: any,
+        index: number
+      ) => ({
+        chartId: index + 1,
+
+        buildNumber:
+          item.buildNumber,
+
+        coverage:
+          Number(item.coverage),
+
+        score:
+          Number(item.score),
+
+        bugs:
+          Number(item.bugs),
+
+        vulnerabilities:
+          Number(
+            item.vulnerabilities
+          ),
+
+        status:
+          item.status,
+      })
+    );
+
   return (
-    <div style={{ height: "350px", display: "flex", flexDirection: "column" }}>
-      <h3 style={{ marginBottom: "16px", fontFamily: "var(--font-display)", fontWeight: 500, fontSize: "16px" }}>
-        Quality Score Trend
+    <div
+      style={{
+        width: "100%",
+        height: 400,
+
+        background: "#FFFFFF",
+
+        padding: "20px",
+
+        borderRadius: "12px",
+
+        marginTop: "25px",
+
+        boxShadow:
+          "0 2px 8px rgba(0,0,0,0.08)",
+      }}
+    >
+      <h3
+        style={{
+          marginBottom: 20,
+
+          fontSize: 18,
+
+          fontWeight: 600,
+
+          color: "#111827",
+        }}
+      >
+        Quality Trend Analysis
       </h3>
 
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-          <CartesianGrid stroke="var(--grey-200)" strokeDasharray="3 3" />
-          <XAxis 
-            dataKey="buildNumber" 
-            stroke="var(--grey-700)" 
-            fontSize={12}
-            tickLine={false} 
-            axisLine={false}
-            dy={8}
+      <ResponsiveContainer
+        width="100%"
+        height={320}
+      >
+        <LineChart
+          data={formattedData}
+        >
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="#E5E7EB"
           />
-          <YAxis 
-            stroke="var(--grey-700)" 
-            fontSize={12}
-            tickLine={false} 
-            axisLine={false}
-            dx={-8}
+
+          <XAxis
+            dataKey="chartId"
+            stroke="#6B7280"
+          />
+
+          <YAxis
             domain={[0, 100]}
+            stroke="#6B7280"
           />
-          <Tooltip 
+
+          <Tooltip
             contentStyle={{
-              background: "var(--grey-900)",
-              border: "none",
-              borderRadius: "4px",
-              color: "white",
-              fontSize: "12px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
+              background:
+                "#FFFFFF",
+
+              border:
+                "1px solid #E5E7EB",
+
+              borderRadius:
+                "10px",
+
+              color:
+                "#111827",
             }}
-            labelFormatter={(label) => `Build #${label}`}
-            formatter={(value: any) => [`${value}%`, "Quality Score"]}
+
+            formatter={(
+              value: any,
+              name: any
+            ) => {
+
+              if (
+                name ===
+                "coverage"
+              ) {
+                return [
+                  `${value}%`,
+                  "Coverage",
+                ];
+              }
+
+              if (
+                name ===
+                "score"
+              ) {
+                return [
+                  `${value}%`,
+                  "Project Health Score",
+                ];
+              }
+
+              return [
+                value,
+                name,
+              ];
+            }}
+
+            labelFormatter={(
+              label,
+              payload
+            ) => {
+
+              if (
+                payload &&
+                payload.length > 0
+              ) {
+
+                return `Build #${payload[0].payload.buildNumber}`;
+              }
+
+              return label;
+            }}
           />
+
+          <Legend />
+
+          {/* Coverage Line */}
+
           <Line
             type="monotone"
-            dataKey="score"
-            stroke="var(--google-blue-600)"
+
+            dataKey="coverage"
+
+            stroke="#22C55E"
+
             strokeWidth={3}
-            activeDot={{ r: 6, strokeWidth: 0 }}
-            dot={{ r: 3, strokeWidth: 1 }}
+
+            dot={{ r: 4 }}
+
+            activeDot={{
+              r: 7,
+            }}
+
+            name="Coverage"
+          />
+
+          {/* Project Health Line */}
+
+          <Line
+            type="monotone"
+
+            dataKey="score"
+
+            stroke="#2563EB"
+
+            strokeWidth={3}
+
+            dot={{ r: 4 }}
+
+            activeDot={{
+              r: 7,
+            }}
+
+            name="Project Health Score"
           />
         </LineChart>
       </ResponsiveContainer>

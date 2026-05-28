@@ -64,6 +64,31 @@ export default function CodeHealth() {
       .catch(console.error);
   }, []);
 
+  // Compute unique issue counts by file for each type
+  const uniqueByFile = (list, type) => {
+    const map = new Map();
+    list.filter(i => i.type === type).forEach(i => {
+      if (!map.has(i.file)) map.set(i.file, i);
+    });
+    return Array.from(map.values());
+  };
+
+  const bugCount = uniqueByFile(issues, "BUG").length;
+  const vulnerabilityCount = uniqueByFile(issues, "VULNERABILITY").length;
+  const codeSmellCount = uniqueByFile(issues, "CODE_SMELL").length;
+
+  // Filter issues based on search and type filter, then deduplicate by file
+  const filteredRaw = issues.filter(issue => {
+    const searchMatch = issue.file.toLowerCase().includes(search.toLowerCase());
+    const typeMatch = typeFilter === "ALL" || issue.type === typeFilter;
+    return searchMatch && typeMatch;
+  });
+  const uniqueMap = new Map();
+  filteredRaw.forEach(issue => {
+    if (!uniqueMap.has(issue.file)) uniqueMap.set(issue.file, issue);
+  });
+  const filteredIssues = Array.from(uniqueMap.values());
+
   // Sync dashboard filters and smooth scroll
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -76,11 +101,8 @@ export default function CodeHealth() {
     }
   }, []);
 
-  const filteredIssues = issues.filter((issue) => {
-    const searchMatch = issue.file.toLowerCase().includes(search.toLowerCase());
-    const typeMatch = typeFilter === "ALL" || issue.type === typeFilter;
-    return searchMatch && typeMatch;
-  });
+  // Use all issues without deduplication to display full counts
+
 
   // Automatically keep selected issue in sync with list filter updates
   useEffect(() => {
@@ -251,7 +273,7 @@ export default function CodeHealth() {
       >
         <MetricCard
           title="Bugs"
-          value={summary.bugs}
+          value={bugCount}
           subtitle="Click to view & filter bugs"
           valueColor="var(--google-red-600)"
           onClick={() => {
@@ -262,7 +284,7 @@ export default function CodeHealth() {
 
         <MetricCard
           title="Vulnerabilities"
-          value={summary.vulnerabilities}
+          value={vulnerabilityCount}
           subtitle="Click to view vulnerabilities"
           valueColor="var(--google-red-700)"
           onClick={() => {
@@ -273,7 +295,7 @@ export default function CodeHealth() {
 
         <MetricCard
           title="Code Smells"
-          value={summary.codeSmells}
+          value={codeSmellCount}
           subtitle="Click to view code smells"
           valueColor="var(--google-blue-600)"
           onClick={() => {

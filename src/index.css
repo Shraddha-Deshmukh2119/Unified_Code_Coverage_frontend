@@ -228,7 +228,7 @@ a:hover {
   }
 }
 
-/* Elegant Google Footer */
+/*   Footer */
 .g-footer {
   background-color: #ffffff;
   border-top: 1px solid var(--border-color);
@@ -256,7 +256,7 @@ a:hover {
   color: var(--google-blue-600);
 }
 
-/* Google Cards */
+/*  Cards */
 .g-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -312,7 +312,7 @@ a:hover {
   align-items: center;
 }
 
-/* Form Controls (Google Console inputs and dropdowns) */
+/* Form Controls ( Console inputs and dropdowns) */
 .g-input, .g-select {
   font-family: var(--font-body);
   font-size: 14px;

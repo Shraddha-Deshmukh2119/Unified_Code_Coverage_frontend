@@ -29,10 +29,18 @@ export default function Modules() {
   useEffect(() => {
     getModules()
       .then((res) => {
-        setModules(res.data);
-        if (res.data && res.data.length > 0) {
+        // Deduplicate modules by moduleName, keeping only unique files
+        const seen = new Set<string>();
+        const uniqueModules = (res.data ?? []).filter((mod: any) => {
+          const key = mod.moduleName;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        setModules(uniqueModules);
+        if (uniqueModules.length > 0) {
           // Auto-select the first module by default
-          setSelectedModuleId(res.data[0].id);
+          setSelectedModuleId(uniqueModules[0].id);
         }
       })
       .catch(console.error);

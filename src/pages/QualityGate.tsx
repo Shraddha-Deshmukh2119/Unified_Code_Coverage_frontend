@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import MainLayout from "../layouts/MainLayout";
 
 import RuleStatusBadge from "../components/common/RuleStatusBadge";
+import { getSonarIssues } from "../api/dashboardApi";
 import QualityScoreTrendChart
 from "../components/charts/QualityScoreTrendChart";
 
@@ -14,8 +15,10 @@ import {
 export default function QualityGate() {
   const [gate, setGate] = useState<any>(null);
 
-  const [history, setHistory] =
-    useState<any[]>([]);
+  const [history, setHistory] = useState<any[]>([]);
+const [bugCount, setBugCount] = useState<number>(0);
+const [vulnCount, setVulnCount] = useState<number>(0);
+const [codeSmellCount, setCodeSmellCount] = useState<number>(0);
 
   const [search, setSearch] = useState("");
 
@@ -23,18 +26,35 @@ const [statusFilter, setStatusFilter] =
   useState("ALL");
 
   useEffect(() => {
-    getQualityGate()
-      .then((res) => {
-        setGate(res.data);
-      })
-      .catch(console.error);
+  // Fetch Quality Gate data
+  getQualityGate()
+    .then((res) => {
+      setGate(res.data);
+    })
+    .catch(console.error);
 
-    getQualityGateHistory()
-      .then((res) => {
-        setHistory(res.data);
-      })
-      .catch(console.error);
-  }, []);
+  // Fetch Quality Gate history
+  getQualityGateHistory()
+    .then((res) => {
+      setHistory(res.data);
+    })
+    .catch(console.error);
+
+  // Fetch Sonar issues and compute unique counts
+  getSonarIssues()
+    .then((res) => {
+      const issues = res.data;
+      const uniqueByFile = (list: any[], type: string) => {
+        const map = new Map();
+        list.filter((i) => (i.type || '').toUpperCase() === type.toUpperCase()).forEach((i) => map.set(i.file, i));
+        return Array.from(map.values());
+      };
+      setBugCount(uniqueByFile(issues, "BUG").length);
+      setVulnCount(uniqueByFile(issues, "VULNERABILITY").length);
+      setCodeSmellCount(uniqueByFile(issues, "CODE_SMELL").length);
+    })
+    .catch(console.error);
+}, []);
 
   if (!gate) {
     return (
@@ -72,7 +92,7 @@ console.log("Filtered:", filteredHistory);
         style={{
           borderLeft: gate.status === "PASSED" ? "6px solid var(--google-green-600)" : "6px solid var(--google-red-600)",
           marginBottom: "24px",
-          padding: "24px"
+          padding: "24px",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -106,10 +126,13 @@ console.log("Filtered:", filteredHistory);
           }}
         >
           <div>
-            Passed Rules: <strong style={{ color: "var(--google-green-700)", fontSize: "15px" }}>{gate.passedRules}</strong>
+            Bugs: <strong style={{ color: "var(--google-green-700)", fontSize: "15px" }}>{bugCount}</strong>
           </div>
           <div>
-            Failed Rules: <strong style={{ color: "var(--google-red-700)", fontSize: "15px" }}>{gate.failedRules}</strong>
+            Vulnerabilities: <strong style={{ color: "var(--google-red-700)", fontSize: "15px" }}>{vulnCount}</strong>
+          </div>
+          <div>
+            Code Smells: <strong style={{ color: "var(--google-blue-700)", fontSize: "15px" }}>{codeSmellCount}</strong>
           </div>
         </div>
       </div>
@@ -213,7 +236,7 @@ console.log("Filtered:", filteredHistory);
                 >
                   <div>
                     <strong style={{ display: "block", fontSize: "14px", color: "var(--text-primary)" }}>
-                      Build #{item.buildNumber}
+                      Build Number {item.buildNumber}
                     </strong>
                     <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
                       Score: {item.score}% | Coverage: {item.coverage}%
