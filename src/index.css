@@ -355,6 +355,9 @@ a:hover {
   text-align: left;
 }
 .g-table th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   background: var(--grey-50);
   font-family: var(--font-display);
   font-weight: 500;

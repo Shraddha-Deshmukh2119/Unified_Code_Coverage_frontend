@@ -4,7 +4,6 @@ import { getAIMetrics, getAIInsights } from "../api/dashboardApi";
 import {
   Brain,
   AlertTriangle,
-  ShieldAlert,
   Target,
   TrendingUp,
   FileWarning,

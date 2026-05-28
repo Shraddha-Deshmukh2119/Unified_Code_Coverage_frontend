@@ -30,6 +30,7 @@ export default function CodeHealth() {
   const [selectedIssueDetails, setSelectedIssueDetails] = useState<any>(null);
   const [selectedIssueSource, setSelectedIssueSource] = useState<any>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [shouldScrollToCode, setShouldScrollToCode] = useState(false);
 
   useEffect(() => {
     getSonarSummary()
@@ -65,9 +66,9 @@ export default function CodeHealth() {
   }, []);
 
   // Compute unique issue counts by file for each type
-  const uniqueByFile = (list, type) => {
+  const uniqueByFile = (list: any[], type: string) => {
     const map = new Map();
-    list.filter(i => i.type === type).forEach(i => {
+    list.filter((i: any) => i.type === type).forEach((i: any) => {
       if (!map.has(i.file)) map.set(i.file, i);
     });
     return Array.from(map.values());
@@ -253,6 +254,16 @@ export default function CodeHealth() {
       });
   }, [selectedIssueKey, issues]);
 
+  // Scroll to code view when details load after user clicks a row
+  useEffect(() => {
+    if (shouldScrollToCode && selectedIssueDetails) {
+      setShouldScrollToCode(false);
+      setTimeout(() => {
+        document.getElementById("code-view-section")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [selectedIssueDetails, shouldScrollToCode]);
+
   if (!summary) {
     return <MainLayout>Loading...</MainLayout>;
   }
@@ -434,20 +445,17 @@ export default function CodeHealth() {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: "24px", alignItems: "flex-start" }}>
-          {/* LEFT COLUMN: Search filters and interactive issues list */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          {/* FULL-WIDTH: Search filters and issues table */}
           <div 
             className="g-card" 
             style={{ 
-              width: "55%", 
-              flexShrink: 0, 
+              width: "100%", 
               padding: "20px", 
               borderRadius: "8px",
               display: "flex",
               flexDirection: "column",
               gap: "16px",
-              maxHeight: "85vh",
-              overflowY: "auto"
             }}
           >
             {/* Filters Row */}
@@ -474,50 +482,186 @@ export default function CodeHealth() {
               </select>
             </div>
 
-            {/* Compact Issues Table list */}
-            <div style={{ overflowX: "auto" }}>
-              <table className="g-table" style={{ fontSize: "13px" }}>
+            {/* Issues Table — 6 columns with max-height to show ~10 files and scroll */}
+            <div 
+              style={{ 
+                overflowX: "auto", 
+                maxHeight: "530px", 
+                overflowY: "auto",
+                border: "1px solid var(--border-color)",
+                borderRadius: "6px"
+              }}
+            >
+              <table className="g-table" style={{ fontSize: "12.5px", minWidth: "900px", borderCollapse: "separate", borderSpacing: 0 }}>
                 <thead>
                   <tr>
-                    <th style={{ width: "20%" }}>Type</th>
-                    <th style={{ width: "20%" }}>Severity</th>
-                    <th style={{ width: "45%" }}>File Location</th>
-                    <th style={{ width: "15%" }}>Line</th>
+                    <th style={{ width: "9%", whiteSpace: "nowrap" }}>Type</th>
+                    <th style={{ width: "9%", whiteSpace: "nowrap" }}>Severity</th>
+                    <th style={{ width: "14%", whiteSpace: "nowrap" }}>File</th>
+                    <th style={{ width: "23%", whiteSpace: "nowrap" }}>Description</th>
+                    <th style={{ width: "23%", whiteSpace: "nowrap" }}>Recommendation</th>
+                    <th style={{ width: "22%", whiteSpace: "nowrap" }}>Impact</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredIssues.length > 0 ? (
                     filteredIssues.map((issue, index) => {
                       const isSelected = issue.issueKey === selectedIssueKey;
+                      // For rows where API returns null, fall back to selectedIssueDetails if that row is selected
+                      const details = isSelected && selectedIssueDetails ? selectedIssueDetails : issue;
+                      const truncate = (text: string | null | undefined, len = 70) =>
+                        text ? (text.length > len ? text.slice(0, len) + "…" : text) : null;
+
                       return (
                         <tr
                           key={`${issue.issueKey}-${index}`}
-                          onClick={() => setSelectedIssueKey(issue.issueKey)}
-                          style={{ 
+                          onClick={() => {
+                            setSelectedIssueKey(issue.issueKey);
+                            setShouldScrollToCode(true);
+                          }}
+                          style={{
                             cursor: "pointer",
                             backgroundColor: isSelected ? "var(--bmc-orange-light)" : "transparent",
-                            borderLeft: isSelected ? "3px solid var(--bmc-orange)" : "3px solid transparent"
+                            borderLeft: isSelected ? "3px solid var(--bmc-orange)" : "3px solid transparent",
                           }}
                         >
+                          {/* Type */}
                           <td>
                             <IssueTypeBadge type={issue.type} />
                           </td>
+
+                          {/* Severity */}
                           <td>
                             <SeverityBadge severity={issue.severity} />
                           </td>
-                          <td style={{ fontFamily: "var(--font-mono)", fontSize: "12px", wordBreak: "break-all", fontWeight: isSelected ? 600 : 500, color: isSelected ? "var(--bmc-orange)" : "inherit" }}>
-                            {issue.file.includes("/") ? issue.file.substring(issue.file.lastIndexOf("/") + 1) : issue.file}
-                            <span style={{ display: "block", fontSize: "10.5px", color: "var(--text-secondary)", fontFamily: "var(--font-body)" }}>
-                              {issue.file.length > 35 ? "..." + issue.file.slice(-35) : issue.file}
+
+                          {/* File */}
+                          <td
+                            style={{
+                              fontFamily: "var(--font-mono)",
+                              fontSize: "11.5px",
+                              fontWeight: isSelected ? 600 : 500,
+                              color: isSelected ? "var(--bmc-orange)" : "inherit",
+                              maxWidth: "130px",
+                            }}
+                          >
+                            <div
+                              title={issue.file}
+                              style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                            >
+                              {issue.file.includes("/")
+                                ? issue.file.substring(issue.file.lastIndexOf("/") + 1)
+                                : issue.file}
+                            </div>
+                            <span
+                              style={{
+                                display: "block",
+                                fontSize: "10px",
+                                color: "var(--text-secondary)",
+                                fontFamily: "var(--font-body)",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {issue.rule}
                             </span>
                           </td>
-                          <td style={{ fontWeight: 600 }}>{issue.line}</td>
+
+                          {/* Rule Description */}
+                          <td
+                            title={details.ruleDescription ?? undefined}
+                            style={{
+                              fontSize: "11.5px",
+                              color: details.ruleDescription ? "var(--text-primary)" : "var(--grey-400)",
+                              maxWidth: "200px",
+                            }}
+                          >
+                            {details.ruleDescription ? (
+                              <span
+                                style={{
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                  lineHeight: 1.45,
+                                }}
+                              >
+                                {truncate(details.ruleDescription, 90)}
+                              </span>
+                            ) : (
+                              <span style={{ fontStyle: "italic", fontSize: "11px" }}>—</span>
+                            )}
+                          </td>
+
+                          {/* Recommendation */}
+                          <td
+                            title={details.recommendation ?? undefined}
+                            style={{
+                              fontSize: "11.5px",
+                              color: details.recommendation
+                                ? "var(--google-green-700)"
+                                : "var(--grey-400)",
+                              maxWidth: "200px",
+                            }}
+                          >
+                            {details.recommendation ? (
+                              <span
+                                style={{
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                  lineHeight: 1.45,
+                                }}
+                              >
+                                {truncate(details.recommendation, 90)}
+                              </span>
+                            ) : (
+                              <span style={{ fontStyle: "italic", fontSize: "11px" }}>—</span>
+                            )}
+                          </td>
+
+                          {/* Impact */}
+                          <td
+                            title={details.impact ?? undefined}
+                            style={{
+                              fontSize: "11.5px",
+                              color: details.impact
+                                ? "var(--google-red-600)"
+                                : "var(--grey-400)",
+                              maxWidth: "190px",
+                            }}
+                          >
+                            {details.impact ? (
+                              <span
+                                style={{
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                  lineHeight: 1.45,
+                                }}
+                              >
+                                {truncate(details.impact, 90)}
+                              </span>
+                            ) : (
+                              <span style={{ fontStyle: "italic", fontSize: "11px" }}>—</span>
+                            )}
+                          </td>
                         </tr>
                       );
                     })
                   ) : (
                     <tr>
-                      <td colSpan={4} style={{ textAlign: "center", padding: "40px", color: "var(--text-secondary)" }}>
+                      <td
+                        colSpan={6}
+                        style={{
+                          textAlign: "center",
+                          padding: "40px",
+                          color: "var(--text-secondary)",
+                        }}
+                      >
                         No issues found matching current search.
                       </td>
                     </tr>
@@ -525,10 +669,31 @@ export default function CodeHealth() {
                 </tbody>
               </table>
             </div>
+
+            {/* Null-data notice */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                fontSize: "11.5px",
+                color: "var(--text-secondary)",
+                padding: "6px 10px",
+                background: "var(--google-blue-50)",
+                border: "1px solid var(--google-blue-100)",
+                borderRadius: "6px",
+              }}
+            >
+              <span style={{ fontWeight: 600, color: "var(--google-blue-600)" }}>ℹ</span>
+              <span>
+                <strong>Description · Recommendation · Impact</strong> columns populate from the issue details API.
+                Rows showing <em>—</em> have <code style={{ fontSize: "11px" }}>null</code> returned by the list endpoint — click a row to load its full details.
+              </span>
+            </div>
           </div>
 
-          {/* RIGHT COLUMN: Full Combined Issue Details & Highlighted Source Code panel */}
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "20px" }}>
+          {/* DETAILS PANEL: renders below the table when a row is selected */}
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px" }}>
             {selectedIssueDetails ? (
               <div 
                 className="g-card" 
@@ -552,91 +717,127 @@ export default function CodeHealth() {
                   <SeverityBadge severity={selectedIssueDetails.severity} />
                 </div>
 
-                {/* Key properties table */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 16px", background: "var(--grey-50)", padding: "12px 16px", borderRadius: "6px", fontSize: "12.5px", marginBottom: "16px", border: "1px solid var(--border-color)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: "var(--text-secondary)" }}>File:</span>
-                    <strong style={{ fontFamily: "var(--font-mono)", fontSize: "12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "120px" }} title={selectedIssueDetails.file}>
-                      {selectedIssueDetails.file.includes("/") ? selectedIssueDetails.file.substring(selectedIssueDetails.file.lastIndexOf("/") + 1) : selectedIssueDetails.file}
-                    </strong>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(450px, 1fr))", gap: "24px", alignItems: "flex-start" }}>
+                  {/* Left Column: Code Insights */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
+                    {/* Key properties grid */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px 16px", background: "var(--grey-50)", padding: "12px 16px", borderRadius: "6px", fontSize: "12.5px", border: "1px solid var(--border-color)" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                        <span style={{ color: "var(--text-secondary)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.04em" }}>File</span>
+                        <strong style={{ fontFamily: "var(--font-mono)", fontSize: "12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={selectedIssueDetails.file}>
+                          {selectedIssueDetails.file.includes("/") ? selectedIssueDetails.file.substring(selectedIssueDetails.file.lastIndexOf("/") + 1) : selectedIssueDetails.file}
+                        </strong>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                        <span style={{ color: "var(--text-secondary)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Rule</span>
+                        <strong style={{ fontFamily: "var(--font-mono)", color: "var(--google-blue-600)", fontSize: "12px" }}>{selectedIssueDetails.rule}</strong>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                        <span style={{ color: "var(--text-secondary)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Effort</span>
+                        <strong>{selectedIssueDetails.effortMinutes ?? 5} mins</strong>
+                      </div>
+                    </div>
+
+                    {/* Insights Table: ruleDescription, recommendation, impact */}
+                    {(selectedIssueDetails.ruleDescription || selectedIssueDetails.recommendation || selectedIssueDetails.impact) && (
+                      <div style={{ border: "1px solid var(--border-color)", borderRadius: "8px", overflow: "hidden" }}>
+                        <div style={{ padding: "9px 14px", background: "var(--grey-100)", borderBottom: "1px solid var(--border-color)", display: "flex", alignItems: "center", gap: "6px" }}>
+                          <BookOpen size={13} style={{ color: "var(--text-secondary)" }} />
+                          <span style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-secondary)" }}>Issue Insights</span>
+                        </div>
+                        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12.5px" }}>
+                          <tbody>
+                            {selectedIssueDetails.ruleDescription && (
+                              <tr style={{ borderBottom: selectedIssueDetails.recommendation || selectedIssueDetails.impact ? "1px solid var(--border-color)" : "none" }}>
+                                <td style={{ width: "30%", padding: "11px 14px", verticalAlign: "top", background: "var(--grey-50)", borderRight: "1px solid var(--border-color)" }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                    <BookOpen size={12} style={{ color: "var(--google-blue-600)", flexShrink: 0 }} />
+                                    <span style={{ fontWeight: 700, color: "var(--google-blue-600)", fontSize: "11.5px" }}>Rule Description</span>
+                                  </div>
+                                </td>
+                                <td style={{ padding: "11px 14px", verticalAlign: "top", color: "var(--text-primary)", lineHeight: 1.55 }}>
+                                  {selectedIssueDetails.ruleDescription}
+                                </td>
+                              </tr>
+                            )}
+                            {selectedIssueDetails.recommendation && (
+                              <tr style={{ borderBottom: selectedIssueDetails.impact ? "1px solid var(--border-color)" : "none" }}>
+                                <td style={{ width: "30%", padding: "11px 14px", verticalAlign: "top", background: "var(--google-green-50)", borderRight: "1px solid var(--border-color)" }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                    <Sparkles size={12} style={{ color: "var(--google-green-700)", flexShrink: 0 }} />
+                                    <span style={{ fontWeight: 700, color: "var(--google-green-700)", fontSize: "11.5px" }}>Recommendation</span>
+                                  </div>
+                                </td>
+                                <td style={{ padding: "11px 14px", verticalAlign: "top", color: "var(--google-green-700)", lineHeight: 1.55, background: "rgba(230,244,234,0.35)" }}>
+                                  {selectedIssueDetails.recommendation}
+                                </td>
+                              </tr>
+                            )}
+                            {selectedIssueDetails.impact && (
+                              <tr>
+                                <td style={{ width: "30%", padding: "11px 14px", verticalAlign: "top", background: "var(--google-red-50)", borderRight: "1px solid var(--border-color)" }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                    <HelpCircle size={12} style={{ color: "var(--google-red-600)", flexShrink: 0 }} />
+                                    <span style={{ fontWeight: 700, color: "var(--google-red-600)", fontSize: "11.5px" }}>Impact</span>
+                                  </div>
+                                </td>
+                                <td style={{ padding: "11px 14px", verticalAlign: "top", color: "var(--google-red-700)", lineHeight: 1.55, background: "rgba(252,232,230,0.3)" }}>
+                                  {selectedIssueDetails.impact}
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: "var(--text-secondary)" }}>Line:</span>
-                    <strong>{selectedIssueDetails.line}</strong>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: "var(--text-secondary)" }}>Rule:</span>
-                    <strong style={{ fontFamily: "var(--font-mono)", color: "var(--google-blue-600)" }}>{selectedIssueDetails.rule}</strong>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ color: "var(--text-secondary)" }}>Effort:</span>
-                    <strong>{selectedIssueDetails.effortMinutes ?? 5} mins</strong>
+
+                  {/* Right Column: Source Code View */}
+                  <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                    {/* Code Viewer Panel */}
+                    <h4 id="code-view-section" style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <Terminal size={14} /> Source Code Inspector (Line {selectedIssueDetails.line})
+                    </h4>
+
+                    {selectedIssueSource ? (
+                      <div 
+                        className="code-viewer-container" 
+                        style={{ 
+                          maxHeight: "400px", 
+                          overflowY: "auto", 
+                          fontSize: "12.5px",
+                          borderRadius: "6px"
+                        }}
+                      >
+                        {selectedIssueSource.source.map((lineObj: any) => {
+                          const isHighlighted = lineObj.line === selectedIssueSource.highlightLine;
+                          return (
+                            <div
+                              key={lineObj.line}
+                              className={`code-line ${isHighlighted ? "highlighted" : ""}`}
+                            >
+                              <div className="code-line-number" style={{ fontSize: "11px", width: "42px", paddingRight: "10px" }}>
+                                {lineObj.line}
+                              </div>
+                              <div className="code-line-content" style={{ paddingLeft: "10px" }}>
+                                {lineObj.code}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : loadingDetails ? (
+                      <div style={{ padding: "30px", height: "400px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-secondary)", background: "#0f172a", borderRadius: "6px", fontFamily: "var(--font-mono)", fontSize: "12.5px" }}>
+                        Loading highlighted source code...
+                      </div>
+                    ) : (
+                      <div style={{ padding: "20px", height: "400px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--grey-500)", background: "#0f172a", borderRadius: "6px", fontSize: "12.5px", border: "1px solid var(--grey-300)" }}>
+                        <HelpCircle size={28} style={{ color: "#475569", marginBottom: "6px" }} />
+                        <p style={{ color: "#94a3b8" }}>Source code block preview is not available for this issue key.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                {/* Recommended Fix section */}
-                {selectedIssueDetails.recommendation && (
-                  <div 
-                    style={{ 
-                      backgroundColor: "var(--google-green-50)", 
-                      border: "1px solid var(--google-green-100)", 
-                      padding: "12px 14px", 
-                      borderRadius: "6px",
-                      marginBottom: "16px",
-                      color: "var(--google-green-700)"
-                    }}
-                  >
-                    <h4 style={{ fontSize: "12.5px", fontWeight: 700, margin: "0 0 4px 0", color: "var(--google-green-700)", display: "flex", alignItems: "center", gap: "4px" }}>
-                      <Sparkles size={14} /> Recommended Action:
-                    </h4>
-                    <p style={{ fontSize: "12.5px", margin: 0, lineHeight: 1.5, color: "var(--google-green-700)" }}>
-                      {selectedIssueDetails.recommendation}
-                    </p>
-                  </div>
-                )}
-
-                {/* Code Viewer Panel */}
-                <h4 style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px", display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Terminal size={14} /> Source Code Inspector (Line {selectedIssueDetails.line})
-                </h4>
-
-                {selectedIssueSource ? (
-                  <div 
-                    className="code-viewer-container" 
-                    style={{ 
-                      maxHeight: "300px", 
-                      overflowY: "auto", 
-                      fontSize: "12.5px",
-                      borderRadius: "6px"
-                    }}
-                  >
-                    {selectedIssueSource.source.map((lineObj: any) => {
-                      const isHighlighted = lineObj.line === selectedIssueSource.highlightLine;
-                      return (
-                        <div
-                          key={lineObj.line}
-                          className={`code-line ${isHighlighted ? "highlighted" : ""}`}
-                        >
-                          <div className="code-line-number" style={{ fontSize: "11px", width: "42px", paddingRight: "10px" }}>
-                            {lineObj.line}
-                          </div>
-                          <div className="code-line-content" style={{ paddingLeft: "10px" }}>
-                            {lineObj.code}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : loadingDetails ? (
-                  <div style={{ padding: "30px", textAlign: "center", color: "var(--text-secondary)", background: "#0f172a", borderRadius: "6px", fontFamily: "var(--font-mono)", fontSize: "12.5px" }}>
-                    Loading highlighted source code...
-                  </div>
-                ) : (
-                  <div style={{ padding: "20px", textAlign: "center", color: "var(--grey-500)", background: "#0f172a", borderRadius: "6px", fontSize: "12.5px", border: "1px solid var(--grey-300)" }}>
-                    <HelpCircle size={28} style={{ color: "#475569", marginBottom: "6px" }} />
-                    <p style={{ color: "#94a3b8" }}>Source code block preview is not available for this issue key.</p>
-                  </div>
-                )}
               </div>
             ) : (
               <div 

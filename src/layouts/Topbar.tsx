@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { getLatestBuild } from "../api/dashboardApi";
 import { 
   GitBranch, 
@@ -18,7 +18,6 @@ import {
 export default function Topbar() {
   const [latestBuild, setLatestBuild] = useState<any>(null);
   const [theme, setTheme] = useState<string>(localStorage.getItem("theme") || "light");
-  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {

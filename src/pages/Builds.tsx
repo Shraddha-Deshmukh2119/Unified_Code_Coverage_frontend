@@ -66,18 +66,7 @@ export default function Builds() {
   ).length;
   const failedBuilds = builds.length - passedBuilds;
 
-  const durationsMs = builds
-    .map((b) => {
-      if (b.buildDuration) return b.buildDuration;
-      if (b.duration) return b.duration;
-      return null;
-    })
-    .filter((d) => d !== null) as number[];
 
-  const avgDurationMs =
-    durationsMs.length > 0
-      ? durationsMs.reduce((a, b) => a + b, 0) / durationsMs.length
-      : null;
 
   const formatDuration = (ms: number) => {
     const totalSeconds = Math.round(ms / 1000);
@@ -393,62 +382,7 @@ export default function Builds() {
           </p>
         </div>
 
-        {/* Avg Duration */}
-        <div
-          className="g-card"
-          style={{ padding: "20px", position: "relative", overflow: "hidden" }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "4px",
-              background: "var(--google-yellow-600)",
-            }}
-          />
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "10px",
-            }}
-          >
-            <Timer size={16} style={{ color: "var(--google-yellow-600)" }} />
-            <span
-              style={{
-                fontSize: "12px",
-                color: "var(--text-secondary)",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-              }}
-            >
-              Avg Duration
-            </span>
-          </div>
-          <span
-            style={{
-              fontSize: "32px",
-              fontWeight: 700,
-              color: "var(--text-primary)",
-              fontFamily: "var(--font-display)",
-            }}
-          >
-            {avgDurationMs !== null ? formatDuration(avgDurationMs) : "—"}
-          </span>
-          <p
-            style={{
-              fontSize: "12px",
-              color: "var(--text-secondary)",
-              marginTop: "6px",
-            }}
-          >
-            Across all recorded builds
-          </p>
-        </div>
+
       </div>
 
       {/* Filter Bar */}
@@ -1158,205 +1092,179 @@ export default function Builds() {
         </div>
       </div>
 
-      {/* Build Count */}
+
+      {/* ── Compact Build History Table ── */}
       <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "12px",
-          paddingLeft: "4px",
-        }}
+        className="g-card"
+        style={{ padding: 0, overflow: "hidden" }}
       >
-        <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-          Showing{" "}
-          <strong style={{ color: "var(--text-primary)" }}>
-            {filteredBuilds.length}
-          </strong>{" "}
-          build{filteredBuilds.length !== 1 ? "s" : ""}
-          {selectedBuildId !== null && (
-            <span
-              style={{ color: "var(--google-blue-600)", marginLeft: "6px" }}
-            >
-              — Build {selectedBuildId} selected
-            </span>
-          )}
-        </span>
-      </div>
+        {/* Table header bar */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "12px 18px",
+            borderBottom: "1px solid var(--border-color)",
+            background: "var(--grey-50)",
+          }}
+        >
+          <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)" }}>
+            Build History
+          </span>
+          <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+            {filteredBuilds.length} build{filteredBuilds.length !== 1 ? "s" : ""}
+            {selectedBuildId !== null && (
+              <span style={{ color: "var(--google-blue-600)", marginLeft: "6px" }}>
+                — Build {selectedBuildId} selected
+              </span>
+            )}
+          </span>
+        </div>
 
-      {/* ── Flat Build List (no accordion) ── */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         {filteredBuilds.length > 0 ? (
-          filteredBuilds.map((build) => {
-            const isSuccess =
-              build.status === "SUCCESS" || build.status === "PASSED";
-            const coverageVal = build.coverage ?? 0;
+          <div className="g-table-container" style={{ maxHeight: "480px", overflowY: "auto" }}>
+            <table className="g-table" style={{ width: "100%" }}>
+              <thead>
+                <tr>
+                  <th style={{ width: "36px" }}></th>
+                  <th>Build</th>
+                  <th>Status</th>
+                  <th>Repository</th>
+                  <th>Branch</th>
+                  <th>Coverage</th>
+                  <th style={{ textAlign: "right" }}>When</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredBuilds.map((build) => {
+                  const coverageVal = build.coverage ?? 0;
+                  return (
+                    <tr key={build.buildId}>
+                      {/* Status dot cell */}
+                      <td style={{ padding: "0 0 0 4px" }}>
+                        <div
+                          style={{
+                            width: "4px",
+                            height: "32px",
+                            borderRadius: "2px",
+                            background: getStatusBarColor(build.status),
+                            margin: "0 auto",
+                          }}
+                        />
+                      </td>
 
-            return (
-              <div
-                key={build.buildId}
-                style={{
-                  border: "1px solid var(--border-color)",
-                  borderRadius: "8px",
-                  overflow: "hidden",
-                  background: "var(--bg-card)",
-                  boxShadow: "var(--shadow-sm)",
-                  display: "flex",
-                  alignItems: "stretch",
-                  transition: "box-shadow 0.2s ease, transform 0.2s ease",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.boxShadow =
-                    "var(--shadow-md)";
-                  (e.currentTarget as HTMLDivElement).style.transform =
-                    "translateX(3px)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.boxShadow =
-                    "var(--shadow-sm)";
-                  (e.currentTarget as HTMLDivElement).style.transform =
-                    "translateX(0)";
-                }}
-              >
-                {/* Status stripe */}
-                <div
-                  style={{
-                    width: "4px",
-                    background: getStatusBarColor(build.status),
-                    flexShrink: 0,
-                  }}
-                />
+                      {/* Build ID */}
+                      <td>
+                        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                          {getStatusIcon(build.status, 14)}
+                          <span
+                            style={{
+                              fontSize: "13px",
+                              fontWeight: 700,
+                              fontFamily: "var(--font-display)",
+                              color: "var(--text-primary)",
+                            }}
+                          >
+                            #{build.buildId}
+                          </span>
+                        </div>
+                      </td>
 
-                {/* Row content */}
-                <div
-                  style={{
-                    flex: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "14px",
-                    padding: "14px 18px",
-                  }}
-                >
-                  {getStatusIcon(build.status)}
+                      {/* Status badge */}
+                      <td>
+                        <StatusBadge status={build.status} />
+                      </td>
 
-                  {/* Build ID */}
-                  <div style={{ minWidth: "110px" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "5px",
-                      }}
-                    >
-                      <Hash
-                        size={12}
-                        style={{ color: "var(--text-secondary)" }}
-                      />
-                      <span
-                        style={{
-                          fontSize: "14px",
-                          fontWeight: 700,
-                          fontFamily: "var(--font-display)",
-                          color: "var(--text-primary)",
-                        }}
-                      >
-                        Build {build.buildId}
-                      </span>
-                    </div>
-                  </div>
+                      {/* Repo */}
+                      <td>
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "var(--text-secondary)",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            display: "block",
+                            maxWidth: "160px",
+                          }}
+                        >
+                          {build.repositoryName ?? "repository"}
+                        </span>
+                      </td>
 
-                  <StatusBadge status={build.status} />
+                      {/* Branch */}
+                      <td>
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            fontSize: "12px",
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          <GitBranch size={11} />
+                          {build.branch ?? "main"}
+                        </span>
+                      </td>
 
-                  {/* Divider */}
-                  <div
-                    style={{
-                      width: "1px",
-                      height: "20px",
-                      background: "var(--border-color)",
-                    }}
-                  />
+                      {/* Coverage */}
+                      <td>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <div
+                            style={{
+                              width: "56px",
+                              height: "4px",
+                              background: "var(--grey-200)",
+                              borderRadius: "2px",
+                              overflow: "hidden",
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: `${coverageVal}%`,
+                                height: "100%",
+                                background: getCoverageColor(coverageVal),
+                                borderRadius: "2px",
+                              }}
+                            />
+                          </div>
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              fontWeight: 600,
+                              color: getCoverageColor(coverageVal),
+                            }}
+                          >
+                            {coverageVal}%
+                          </span>
+                        </div>
+                      </td>
 
-                  {/* Repo / Branch */}
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      color: "var(--text-secondary)",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "5px",
-                      flex: 1,
-                      minWidth: 0,
-                    }}
-                  >
-                    <GitBranch size={12} style={{ flexShrink: 0 }} />
-                    <span
-                      style={{
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {build.repositoryName ?? "repository"}
-                    </span>
-                    <span style={{ opacity: 0.4 }}>•</span>
-                    <span
-                      style={{
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {build.branch ?? "main"}
-                    </span>
-                  </span>
-
-                  {/* Coverage pill */}
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      color: getCoverageColor(coverageVal),
-                      background: isSuccess
-                        ? "var(--google-green-50)"
-                        : "var(--google-red-50)",
-                      border: `1px solid ${
-                        isSuccess
-                          ? "var(--google-green-100)"
-                          : "var(--google-red-100)"
-                      }`,
-                      borderRadius: "12px",
-                      padding: "3px 10px",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {coverageVal}% cov
-                  </span>
-
-                  {/* Relative time */}
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      color: "var(--text-secondary)",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                      flexShrink: 0,
-                      minWidth: "70px",
-                      justifyContent: "flex-end",
-                    }}
-                  >
-                    <Clock size={12} />
-                    {build.buildTime
-                      ? formatRelativeTime(build.buildTime)
-                      : "—"}
-                  </span>
-                </div>
-              </div>
-            );
-          })
+                      {/* Relative time */}
+                      <td style={{ textAlign: "right" }}>
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            fontSize: "12px",
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          <Clock size={11} />
+                          {build.buildTime ? formatRelativeTime(build.buildTime) : "—"}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <div
-            className="g-card"
             style={{
               textAlign: "center",
               padding: "60px 40px",
