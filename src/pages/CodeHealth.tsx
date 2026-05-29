@@ -38,8 +38,18 @@ export default function CodeHealth() {
       .catch(console.error);
 
     getSonarIssues()
-      .then((res) => {
-        let list = res.data;
+      .then(async (res) => {
+        let list = Array.isArray(res.data) ? [...res.data].reverse() : [];
+        const seen = new Set();
+        list = list.filter((item) => {
+          const file = String(item.file || "").trim();
+          const rule = String(item.rule || "").trim();
+          const line = String(item.line || "none").trim();
+          const key = `${file}-${rule}-${line}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
         const hasSpecificIssue = list.some((i: any) => i.file === "Person.h" && i.rule === "cpp:S3656");
         if (!hasSpecificIssue) {
           list = [
@@ -60,35 +70,34 @@ export default function CodeHealth() {
             ...list
           ];
         }
-        setIssues(list);
+        
+        try {
+          const enrichedList = await Promise.all(
+            list.map(async (issue) => {
+              if (issue.issueKey === "cpp-S3656-person") return issue;
+              if (issue.ruleDescription || issue.description || issue.recommendation || issue.impact) return issue;
+              try {
+                const detailRes = await getSonarIssueDetails(issue.issueKey);
+                return { ...issue, ...detailRes.data };
+              } catch (e) {
+                return issue;
+              }
+            })
+          );
+          setIssues(enrichedList);
+        } catch (e) {
+          setIssues(list);
+        }
       })
       .catch(console.error);
   }, []);
 
-  // Compute unique issue counts by file for each type
-  const uniqueByFile = (list: any[], type: string) => {
-    const map = new Map();
-    list.filter((i: any) => i.type === type).forEach((i: any) => {
-      if (!map.has(i.file)) map.set(i.file, i);
-    });
-    return Array.from(map.values());
-  };
-
-  const bugCount = uniqueByFile(issues, "BUG").length;
-  const vulnerabilityCount = uniqueByFile(issues, "VULNERABILITY").length;
-  const codeSmellCount = uniqueByFile(issues, "CODE_SMELL").length;
-
-  // Filter issues based on search and type filter, then deduplicate by file
-  const filteredRaw = issues.filter(issue => {
+  // Filter issues based on search and type filter — no deduplication, show all API issues
+  const filteredIssues = issues.filter(issue => {
     const searchMatch = issue.file.toLowerCase().includes(search.toLowerCase());
     const typeMatch = typeFilter === "ALL" || issue.type === typeFilter;
     return searchMatch && typeMatch;
   });
-  const uniqueMap = new Map();
-  filteredRaw.forEach(issue => {
-    if (!uniqueMap.has(issue.file)) uniqueMap.set(issue.file, issue);
-  });
-  const filteredIssues = Array.from(uniqueMap.values());
 
   // Sync dashboard filters and smooth scroll
   useEffect(() => {
@@ -284,7 +293,7 @@ export default function CodeHealth() {
       >
         <MetricCard
           title="Bugs"
-          value={bugCount}
+          value={summary.bugs ?? 0}
           subtitle="Click to view & filter bugs"
           valueColor="var(--google-red-600)"
           onClick={() => {
@@ -295,7 +304,7 @@ export default function CodeHealth() {
 
         <MetricCard
           title="Vulnerabilities"
-          value={vulnerabilityCount}
+          value={summary.vulnerabilities ?? 0}
           subtitle="Click to view vulnerabilities"
           valueColor="var(--google-red-700)"
           onClick={() => {
@@ -306,7 +315,7 @@ export default function CodeHealth() {
 
         <MetricCard
           title="Code Smells"
-          value={codeSmellCount}
+          value={summary.codeSmells ?? 0}
           subtitle="Click to view code smells"
           valueColor="var(--google-blue-600)"
           onClick={() => {
@@ -498,7 +507,7 @@ export default function CodeHealth() {
                     <th style={{ width: "9%", whiteSpace: "nowrap" }}>Type</th>
                     <th style={{ width: "9%", whiteSpace: "nowrap" }}>Severity</th>
                     <th style={{ width: "14%", whiteSpace: "nowrap" }}>File</th>
-                    <th style={{ width: "23%", whiteSpace: "nowrap" }}>Description</th>
+                    <th style={{ width: "23%", whiteSpace: "nowrap" }}>Issue Explanation</th>
                     <th style={{ width: "23%", whiteSpace: "nowrap" }}>Recommendation</th>
                     <th style={{ width: "22%", whiteSpace: "nowrap" }}>Impact</th>
                   </tr>
@@ -553,31 +562,18 @@ export default function CodeHealth() {
                                 ? issue.file.substring(issue.file.lastIndexOf("/") + 1)
                                 : issue.file}
                             </div>
-                            <span
-                              style={{
-                                display: "block",
-                                fontSize: "10px",
-                                color: "var(--text-secondary)",
-                                fontFamily: "var(--font-body)",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {issue.rule}
-                            </span>
                           </td>
 
                           {/* Rule Description */}
                           <td
-                            title={details.ruleDescription ?? undefined}
+                            title={(details.ruleDescription || details.description) ?? undefined}
                             style={{
                               fontSize: "11.5px",
-                              color: details.ruleDescription ? "var(--text-primary)" : "var(--grey-400)",
+                              color: (details.ruleDescription || details.description) ? "var(--text-primary)" : "var(--grey-400)",
                               maxWidth: "200px",
                             }}
                           >
-                            {details.ruleDescription ? (
+                            {(details.ruleDescription || details.description) ? (
                               <span
                                 style={{
                                   display: "-webkit-box",
@@ -587,7 +583,7 @@ export default function CodeHealth() {
                                   lineHeight: 1.45,
                                 }}
                               >
-                                {truncate(details.ruleDescription, 90)}
+                                {truncate(details.ruleDescription || details.description, 90)}
                               </span>
                             ) : (
                               <span style={{ fontStyle: "italic", fontSize: "11px" }}>—</span>
@@ -721,16 +717,12 @@ export default function CodeHealth() {
                   {/* Left Column: Code Insights */}
                   <div style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
                     {/* Key properties grid */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px 16px", background: "var(--grey-50)", padding: "12px 16px", borderRadius: "6px", fontSize: "12.5px", border: "1px solid var(--border-color)" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 16px", background: "var(--grey-50)", padding: "12px 16px", borderRadius: "6px", fontSize: "12.5px", border: "1px solid var(--border-color)" }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                         <span style={{ color: "var(--text-secondary)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.04em" }}>File</span>
                         <strong style={{ fontFamily: "var(--font-mono)", fontSize: "12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={selectedIssueDetails.file}>
                           {selectedIssueDetails.file.includes("/") ? selectedIssueDetails.file.substring(selectedIssueDetails.file.lastIndexOf("/") + 1) : selectedIssueDetails.file}
                         </strong>
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                        <span style={{ color: "var(--text-secondary)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Rule</span>
-                        <strong style={{ fontFamily: "var(--font-mono)", color: "var(--google-blue-600)", fontSize: "12px" }}>{selectedIssueDetails.rule}</strong>
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                         <span style={{ color: "var(--text-secondary)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Effort</span>
@@ -752,7 +744,7 @@ export default function CodeHealth() {
                                 <td style={{ width: "30%", padding: "11px 14px", verticalAlign: "top", background: "var(--grey-50)", borderRight: "1px solid var(--border-color)" }}>
                                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                     <BookOpen size={12} style={{ color: "var(--google-blue-600)", flexShrink: 0 }} />
-                                    <span style={{ fontWeight: 700, color: "var(--google-blue-600)", fontSize: "11.5px" }}>Rule Description</span>
+                                    <span style={{ fontWeight: 700, color: "var(--google-blue-600)", fontSize: "11.5px" }}>Issue Explanation</span>
                                   </div>
                                 </td>
                                 <td style={{ padding: "11px 14px", verticalAlign: "top", color: "var(--text-primary)", lineHeight: 1.55 }}>

@@ -33,7 +33,7 @@ export default function Builds() {
 
   useEffect(() => {
     getBuildHistory()
-      .then((res) => setBuilds(res.data))
+      .then((res) => setBuilds(Array.isArray(res.data) ? [...res.data].reverse() : []))
       .catch(console.error);
   }, []);
 

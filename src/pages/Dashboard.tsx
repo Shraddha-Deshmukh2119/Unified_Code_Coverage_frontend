@@ -11,7 +11,6 @@ import {
   getLanguageDistribution,
   getLatestBuild,
   getSonarSummary,
-  getSonarIssues,
 } from "../api/dashboardApi";
 
 export default function Dashboard() {
@@ -21,18 +20,6 @@ export default function Dashboard() {
   const [languages, setLanguages] = useState<any>(null);
   const [latestBuild, setLatestBuild] = useState<any>(null);
   const [sonar, setSonar] = useState<any>(null);
-  const [issues, setIssues] = useState<any[]>([]);
-  // Compute unique issue counts by file
-  const uniqueByFile = (list: any[], type: string) => {
-    const map = new Map();
-    list.filter(i => i.type === type).forEach(i => {
-      if (!map.has(i.file)) map.set(i.file, i);
-    });
-    return Array.from(map.values());
-  };
-  const bugCount = uniqueByFile(issues, "BUG").length;
-  const vulnerabilityCount = uniqueByFile(issues, "VULNERABILITY").length;
-  const codeSmellCount = uniqueByFile(issues, "CODE_SMELL").length;
 
   useEffect(() => {
     getSummary().then((res) => setSummary(res.data));
@@ -47,10 +34,6 @@ export default function Dashboard() {
     getLatestBuild().then((res) => setLatestBuild(res.data));
 
     getSonarSummary().then((res) => setSonar(res.data));
-
-    getSonarIssues().then((res) => {
-      setIssues(res.data);
-    });
   }, []);
 
   return (
@@ -140,27 +123,27 @@ export default function Dashboard() {
           >
             <MetricCard
               title="Bugs"
-              value={bugCount}
+              value={sonar.bugs ?? 0}
               subtitle="Click to view \& filter bugs"
-              trend={bugCount > 0 ? `${bugCount} issues` : "None"}
-              trendType={bugCount > 0 ? "down" : "up"}
+              trend={(sonar.bugs ?? 0) > 0 ? `${sonar.bugs} issues` : "None"}
+              trendType={(sonar.bugs ?? 0) > 0 ? "down" : "up"}
               valueColor="var(--google-red-600)"
               onClick={() => navigate("/code-health?filter=BUG")}
             />
 
             <MetricCard
               title="Vulnerabilities"
-              value={vulnerabilityCount}
+              value={sonar.vulnerabilities ?? 0}
               subtitle="Click to view vulnerabilities"
-              trend={vulnerabilityCount > 0 ? "HIGH RISK" : "SECURE"}
-              trendType={vulnerabilityCount > 0 ? "down" : "up"}
+              trend={(sonar.vulnerabilities ?? 0) > 0 ? "HIGH RISK" : "SECURE"}
+              trendType={(sonar.vulnerabilities ?? 0) > 0 ? "down" : "up"}
               valueColor="var(--google-red-700)"
               onClick={() => navigate("/code-health?filter=VULNERABILITY")}
             />
 
             <MetricCard
               title="Code Smells"
-              value={codeSmellCount}
+              value={sonar.codeSmells ?? 0}
               subtitle="Click to view code smells"
               valueColor="var(--google-blue-600)"
               onClick={() => navigate("/code-health?filter=CODE_SMELL")}

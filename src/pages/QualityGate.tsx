@@ -36,7 +36,7 @@ const [statusFilter, setStatusFilter] =
   // Fetch Quality Gate history
   getQualityGateHistory()
     .then((res) => {
-      setHistory(res.data);
+      setHistory(Array.isArray(res.data) ? [...res.data].reverse() : []);
     })
     .catch(console.error);
 

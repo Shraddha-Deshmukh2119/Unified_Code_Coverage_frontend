@@ -31,7 +31,8 @@ export default function Modules() {
       .then((res) => {
         // Deduplicate modules by moduleName, keeping only unique files
         const seen = new Set<string>();
-        const uniqueModules = (res.data ?? []).filter((mod: any) => {
+        const dataList = Array.isArray(res.data) ? [...res.data].reverse() : [];
+        const uniqueModules = dataList.filter((mod: any) => {
           const key = mod.moduleName;
           if (seen.has(key)) return false;
           seen.add(key);

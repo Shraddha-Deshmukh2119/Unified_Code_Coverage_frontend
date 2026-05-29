@@ -114,7 +114,10 @@ export default function Topbar() {
 
         {/* Dynamic Project Context Selector */}
         {latestBuild && (
-          <div
+          <a
+            href={latestBuild.repositoryUrl || "https://github.com"}
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
               display: "flex",
               alignItems: "center",
@@ -125,7 +128,8 @@ export default function Topbar() {
               color: "#E2E8F0",
               fontSize: "12.5px",
               border: "1px solid rgba(255, 107, 0, 0.3)",
-              cursor: "default"
+              cursor: "pointer",
+              textDecoration: "none"
             }}
             title={`Active Project: ${latestBuild.repositoryName}`}
           >
@@ -138,7 +142,7 @@ export default function Topbar() {
               <GitBranch size={12} />
               <span>{latestBuild.branch}</span>
             </div>
-          </div>
+          </a>
         )}
       </div>
 
