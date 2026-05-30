@@ -156,6 +156,34 @@ export default function Modules() {
     else groupedByBand.high.push(module);
   });
 
+  // Hover path fetcher state
+  const [hoveredModule, setHoveredModule] = useState<{ id: number, path: string }>({ id: 0, path: "" });
+  const [hoverTimer, setHoverTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleMouseEnter = (module: any) => {
+    // If it already has a path, use it directly
+    if (module.modulePath) {
+      setHoveredModule({ id: module.id, path: module.modulePath });
+      return;
+    }
+    
+    // Show a loading message and fetch the path
+    setHoveredModule({ id: module.id, path: "Loading path..." });
+    const timer = setTimeout(() => {
+      getModuleById(module.id).then(res => {
+        setHoveredModule({ id: module.id, path: res.data.modulePath || "Path not available" });
+      }).catch(() => {
+        setHoveredModule({ id: module.id, path: "Path not available" });
+      });
+    }, 150); // Small debounce
+    setHoverTimer(timer);
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimer) clearTimeout(hoverTimer);
+    setHoveredModule({ id: 0, path: "" });
+  };
+
   return (
     <MainLayout>
       <div className="page-subtitle">Codebase Analyzer</div>
@@ -317,6 +345,8 @@ export default function Modules() {
                           key={module.id}
                           className={`coverage-file-item ${isSelected ? "selected" : ""}`}
                           onClick={() => setSelectedModuleId(module.id)}
+                          onMouseEnter={() => handleMouseEnter(module)}
+                          onMouseLeave={handleMouseLeave}
                         >
                           <FileCode size={14} style={{ color: isSelected ? "var(--bmc-orange)" : "var(--google-blue-600)", flexShrink: 0 }} />
                           <span className="file-name">
@@ -337,7 +367,7 @@ export default function Modules() {
 
                           {/* Tooltip showing full path on hover */}
                           <span className="file-tooltip">
-                            {module.modulePath}
+                            {module.modulePath || (hoveredModule.id === module.id ? hoveredModule.path : "")}
                           </span>
                         </div>
                       );
