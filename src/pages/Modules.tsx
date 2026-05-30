@@ -42,8 +42,8 @@ export default function Modules() {
   const [languageFilter, setLanguageFilter] = useState(searchParams.get("lang") || "ALL");
   const [riskFilter, setRiskFilter] = useState("ALL");
   const [expandedBands, setExpandedBands] = useState<{ [key: string]: boolean }>({
-    critical: true,
-    low: true,
+    critical: false,
+    low: false,
     medium: false,
     high: false,
   });
@@ -104,6 +104,20 @@ export default function Modules() {
       navigate("/modules", { replace: true });
     } else {
       navigate(`/modules?lang=${encodeURIComponent(value)}`, { replace: true });
+    }
+
+    // Auto-select the first module matching the new language filter
+    const newFiltered = modules.filter((module) => {
+      const searchMatch = module.moduleName.toLowerCase().includes(search.toLowerCase());
+      const languageMatch = value === "ALL" || module.language === value;
+      const riskMatch = riskFilter === "ALL" || module.riskLevel === riskFilter;
+      return searchMatch && languageMatch && riskMatch;
+    });
+    
+    if (newFiltered.length > 0) {
+      setSelectedModuleId(newFiltered[0].id);
+    } else {
+      setSelectedModuleId(null);
     }
   };
 
@@ -173,15 +187,6 @@ export default function Modules() {
           boxShadow: "var(--shadow-sm)"
         }}
       >
-        <input
-          type="text"
-          placeholder="Search modules by file name..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="g-input"
-          style={{ flex: 1, minWidth: "220px" }}
-        />
-
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <span style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--text-secondary)" }}>Language:</span>
           <select
@@ -210,6 +215,15 @@ export default function Modules() {
             <option value="HIGH">High</option>
           </select>
         </div>
+
+        <input
+          type="text"
+          placeholder="Search modules by file name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="g-input"
+          style={{ flex: 1, minWidth: "220px", marginLeft: "auto" }}
+        />
       </div>
 
       {/* Split Pane View */}
