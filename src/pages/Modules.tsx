@@ -337,7 +337,7 @@ export default function Modules() {
 
                           {/* Tooltip showing full path on hover */}
                           <span className="file-tooltip">
-                            {module.modulePath || module.moduleName}
+                            {module.modulePath}
                           </span>
                         </div>
                       );
@@ -385,22 +385,6 @@ export default function Modules() {
                     <span className="g-badge g-badge-grey" style={{ fontSize: "11px" }}>{selectedModule.language}</span>
                     <RiskBadge risk={selectedModule.riskLevel} />
                     <StatusBadge status={selectedModule.status} />
-                  </div>
-                  {/* Inline full path display */}
-                  <div 
-                    style={{ 
-                      marginTop: "10px",
-                      fontSize: "11.5px",
-                      fontFamily: "var(--font-mono)",
-                      color: "var(--text-secondary)",
-                      background: "var(--grey-50)",
-                      padding: "4px 8px",
-                      borderRadius: "4px",
-                      border: "1px solid var(--border-color)",
-                      wordBreak: "break-all"
-                    }}
-                  >
-                    {selectedModule.modulePath}
                   </div>
                 </div>
 
