@@ -17,6 +17,10 @@ import {
   Hash,
   Search,
   X,
+  TrendingUp,
+  TrendingDown,
+  Shield,
+  ArrowRight,
 } from "lucide-react";
 
 export default function Builds() {
@@ -166,6 +170,28 @@ export default function Builds() {
 
   const selectedBuild = builds.find((b) => b.buildId === selectedBuildId);
   const previewBuild = builds.find((b) => b.buildId === previewBuildId);
+
+  // Compute delta vs previous build for the selected build
+  const getSelectedBuildDelta = () => {
+    if (!selectedBuild) return null;
+    const sortedBuilds = [...builds].sort((a, b) => a.buildId - b.buildId);
+    const idx = sortedBuilds.findIndex((b) => b.buildId === selectedBuild.buildId);
+    if (idx <= 0) return null;
+    const prevBuild = sortedBuilds[idx - 1];
+    const delta = (selectedBuild.coverage ?? 0) - (prevBuild.coverage ?? 0);
+    return { delta: parseFloat(delta.toFixed(2)), prevBuildId: prevBuild.buildId, prevCoverage: prevBuild.coverage ?? 0 };
+  };
+  const buildDelta = getSelectedBuildDelta();
+
+  // Handle clicking a row in the Build History table
+  const handleTableRowClick = (buildId: number) => {
+    if (selectedBuildId === buildId) {
+      // Deselect if already selected
+      setSelectedBuildId(null);
+    } else {
+      setSelectedBuildId(buildId);
+    }
+  };
 
   return (
     <MainLayout>
@@ -1092,6 +1118,121 @@ export default function Builds() {
         </div>
       </div>
 
+      {/* ── Build Detail Insights Panel ── */}
+      {selectedBuild && (
+        <div className="g-card build-detail-panel" style={{ padding: "24px", marginBottom: "16px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px", borderBottom: "1px solid var(--border-color)", paddingBottom: "16px" }}>
+            <div>
+              <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "4px" }}>Selected Build</div>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <h2 style={{ fontSize: "24px", fontWeight: 700, fontFamily: "var(--font-display)", margin: 0 }}>
+                  #{selectedBuild.buildId}
+                </h2>
+                <StatusBadge status={selectedBuild.status} />
+              </div>
+            </div>
+            <button
+              onClick={() => setSelectedBuildId(null)}
+              className="g-btn g-btn-outline"
+              style={{ fontSize: "12px", padding: "6px 12px" }}
+            >
+              <X size={14} />
+              Clear Selection
+            </button>
+          </div>
+
+          <div className="build-detail-grid">
+            {/* Coverage */}
+            <div className="build-detail-metric">
+              <span className="metric-label">
+                <BarChart3 size={12} />
+                Coverage
+              </span>
+              <span className="metric-value" style={{ color: getCoverageColor(selectedBuild.coverage ?? 0) }}>
+                {selectedBuild.coverage ?? 0}%
+              </span>
+              <div style={{ height: "4px", background: "var(--grey-200)", borderRadius: "2px", overflow: "hidden", marginTop: "4px" }}>
+                <div style={{ width: `${selectedBuild.coverage ?? 0}%`, height: "100%", background: getCoverageColor(selectedBuild.coverage ?? 0), borderRadius: "2px", transition: "width 0.6s ease" }} />
+              </div>
+            </div>
+
+            {/* Delta vs Previous */}
+            <div className="build-detail-metric">
+              <span className="metric-label">
+                {buildDelta && buildDelta.delta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                Delta vs Previous
+              </span>
+              {buildDelta ? (
+                <>
+                  <span className="metric-value" style={{ color: buildDelta.delta >= 0 ? "var(--google-green-600)" : "var(--google-red-600)" }}>
+                    {buildDelta.delta >= 0 ? "+" : ""}{buildDelta.delta}%
+                  </span>
+                  <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>
+                    vs Build #{buildDelta.prevBuildId} ({buildDelta.prevCoverage}%)
+                  </span>
+                </>
+              ) : (
+                <span className="metric-value" style={{ fontSize: "14px", color: "var(--text-secondary)" }}>No previous build</span>
+              )}
+            </div>
+
+            {/* Branch */}
+            <div className="build-detail-metric">
+              <span className="metric-label">
+                <GitBranch size={12} />
+                Branch
+              </span>
+              <span className="metric-value" style={{ fontSize: "16px" }}>
+                {selectedBuild.branch ?? "main"}
+              </span>
+            </div>
+
+            {/* Timestamp */}
+            <div className="build-detail-metric">
+              <span className="metric-label">
+                <Calendar size={12} />
+                Executed
+              </span>
+              <span className="metric-value" style={{ fontSize: "14px" }}>
+                {selectedBuild.buildTime
+                  ? new Date(selectedBuild.buildTime).toLocaleString(undefined, {
+                      month: "short", day: "numeric", year: "numeric",
+                      hour: "2-digit", minute: "2-digit",
+                    })
+                  : "—"}
+              </span>
+            </div>
+
+            {/* Duration */}
+            <div className="build-detail-metric">
+              <span className="metric-label">
+                <Timer size={12} />
+                Duration
+              </span>
+              <span className="metric-value" style={{ fontSize: "16px" }}>
+                {selectedBuild.buildDuration ?? selectedBuild.duration
+                  ? formatDuration(selectedBuild.buildDuration ?? selectedBuild.duration)
+                  : "—"}
+              </span>
+            </div>
+
+            {/* Quality Gate */}
+            <div className="build-detail-metric">
+              <span className="metric-label">
+                <Shield size={12} />
+                Quality Gate
+              </span>
+              {selectedBuild.qualityGateStatus ? (
+                <span className="metric-value" style={{ fontSize: "16px", color: selectedBuild.qualityGateStatus === "PASSED" ? "var(--google-green-600)" : "var(--google-red-600)" }}>
+                  {selectedBuild.qualityGateStatus}
+                </span>
+              ) : (
+                <span className="metric-value" style={{ fontSize: "14px", color: "var(--text-secondary)" }}>N/A</span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Compact Build History Table ── */}
       <div
@@ -1139,8 +1280,13 @@ export default function Builds() {
               <tbody>
                 {filteredBuilds.map((build) => {
                   const coverageVal = build.coverage ?? 0;
+                  const isRowSelected = build.buildId === selectedBuildId;
                   return (
-                    <tr key={build.buildId}>
+                    <tr 
+                      key={build.buildId}
+                      className={`clickable-row ${isRowSelected ? "selected-row" : ""}`}
+                      onClick={() => handleTableRowClick(build.buildId)}
+                    >
                       {/* Status dot cell */}
                       <td style={{ padding: "0 0 0 4px" }}>
                         <div

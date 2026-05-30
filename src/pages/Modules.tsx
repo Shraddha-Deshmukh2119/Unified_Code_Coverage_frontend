@@ -1,25 +1,52 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import { getModules, getModuleById } from "../api/dashboardApi";
 import CoverageBar from "../components/common/CoverageBar";
 import StatusBadge from "../components/common/StatusBadge";
 import RiskBadge from "../components/common/RiskBadge";
 import { 
-  Folder, 
-  FolderOpen, 
   FileCode, 
-  ChevronRight, 
-  ChevronDown, 
+  ChevronDown,
+  ChevronRight,
   FileSpreadsheet,
-  Sparkles
+  Sparkles,
+  AlertTriangle,
+  TrendingDown,
+  BarChart3,
+  CheckCircle2,
+  Filter,
+  X
 } from "lucide-react";
 
+// Coverage band definitions
+const COVERAGE_BANDS = [
+  { key: "critical", label: "Critical", range: "0–25%", min: 0, max: 25, color: "var(--google-red-600)", bgColor: "var(--google-red-50)", borderColor: "var(--google-red-100)" },
+  { key: "low", label: "Low", range: "26–50%", min: 26, max: 50, color: "var(--google-yellow-600)", bgColor: "var(--google-yellow-50)", borderColor: "var(--google-yellow-100)" },
+  { key: "medium", label: "Medium", range: "51–75%", min: 51, max: 75, color: "var(--google-blue-600)", bgColor: "var(--google-blue-50)", borderColor: "var(--google-blue-100)" },
+  { key: "high", label: "High", range: "76–100%", min: 76, max: 100, color: "var(--google-green-600)", bgColor: "var(--google-green-50)", borderColor: "var(--google-green-100)" },
+];
+
+const BAND_ICONS: Record<string, any> = {
+  critical: AlertTriangle,
+  low: TrendingDown,
+  medium: BarChart3,
+  high: CheckCircle2,
+};
+
 export default function Modules() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [modules, setModules] = useState<any[]>([]);
   const [search, setSearch] = useState("");
-  const [languageFilter, setLanguageFilter] = useState("ALL");
+  const [languageFilter, setLanguageFilter] = useState(searchParams.get("lang") || "ALL");
   const [riskFilter, setRiskFilter] = useState("ALL");
-  const [expandedFolders, setExpandedFolders] = useState<{ [key: string]: boolean }>({});
+  const [expandedBands, setExpandedBands] = useState<{ [key: string]: boolean }>({
+    critical: true,
+    low: true,
+    medium: false,
+    high: false,
+  });
   
   // Split pane selection states
   const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
@@ -47,6 +74,14 @@ export default function Modules() {
       .catch(console.error);
   }, []);
 
+  // Sync language filter from URL on mount and changes
+  useEffect(() => {
+    const langParam = searchParams.get("lang");
+    if (langParam && langParam !== languageFilter) {
+      setLanguageFilter(langParam);
+    }
+  }, [searchParams]);
+
   // Fetch full details of the selected module
   useEffect(() => {
     if (!selectedModuleId) return;
@@ -62,25 +97,20 @@ export default function Modules() {
       });
   }, [selectedModuleId]);
 
-  // Initialize expanded folders to true once modules load
-  useEffect(() => {
-    if (modules.length > 0) {
-      const initial: { [key: string]: boolean } = {};
-      modules.forEach((module) => {
-        let folder = "root";
-        if (module.modulePath && module.modulePath.includes("/")) {
-          folder = module.modulePath.substring(0, module.modulePath.lastIndexOf("/"));
-        }
-        initial[folder] = true;
-      });
-      setExpandedFolders(initial);
+  // Language filter navigation — update URL when filter changes
+  const handleLanguageChange = (value: string) => {
+    setLanguageFilter(value);
+    if (value === "ALL") {
+      navigate("/modules", { replace: true });
+    } else {
+      navigate(`/modules?lang=${encodeURIComponent(value)}`, { replace: true });
     }
-  }, [modules]);
+  };
 
-  const toggleFolder = (folder: string) => {
-    setExpandedFolders((prev) => ({
+  const toggleBand = (band: string) => {
+    setExpandedBands((prev) => ({
       ...prev,
-      [folder]: !prev[folder],
+      [band]: !prev[band],
     }));
   };
 
@@ -97,32 +127,48 @@ export default function Modules() {
     return searchMatch && languageMatch && riskMatch;
   });
 
-  // Group filtered modules by directory path
-  const groupedModules: { [key: string]: any[] } = {};
+  // Group filtered modules by coverage band
+  const groupedByBand: { [key: string]: any[] } = {
+    critical: [],
+    low: [],
+    medium: [],
+    high: [],
+  };
   filteredModules.forEach((module) => {
-    let folder = "root";
-    if (module.modulePath && module.modulePath.includes("/")) {
-      folder = module.modulePath.substring(0, module.modulePath.lastIndexOf("/"));
-    }
-    if (!groupedModules[folder]) {
-      groupedModules[folder] = [];
-    }
-    groupedModules[folder].push(module);
+    const cov = module.lineCoverage ?? 0;
+    if (cov <= 25) groupedByBand.critical.push(module);
+    else if (cov <= 50) groupedByBand.low.push(module);
+    else if (cov <= 75) groupedByBand.medium.push(module);
+    else groupedByBand.high.push(module);
   });
 
   return (
     <MainLayout>
       <div className="page-subtitle">Codebase Analyzer</div>
-      <h1 className="page-title">Modules Explorer</h1>
+      <h1 className="page-title">
+        Modules Explorer
+        {languageFilter !== "ALL" && (
+          <span className="language-view-badge">
+            <Filter size={12} />
+            {languageFilter} View
+            <span 
+              style={{ cursor: "pointer", marginLeft: "4px", opacity: 0.6 }}
+              onClick={() => handleLanguageChange("ALL")}
+            >
+              <X size={12} />
+            </span>
+          </span>
+        )}
+      </h1>
 
       {/* Filter and Search Bar */}
       <div 
         className="flex-row-wrap" 
         style={{ 
-          marginBottom: "24px", 
+          marginBottom: "20px", 
           background: "var(--bg-card)", 
           padding: "14px 20px", 
-          borderRadius: "8px", 
+          borderRadius: "10px", 
           border: "1px solid var(--border-color)",
           boxShadow: "var(--shadow-sm)"
         }}
@@ -140,7 +186,7 @@ export default function Modules() {
           <span style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--text-secondary)" }}>Language:</span>
           <select
             value={languageFilter}
-            onChange={(e) => setLanguageFilter(e.target.value)}
+            onChange={(e) => handleLanguageChange(e.target.value)}
             className="g-select"
             style={{ minWidth: "120px", padding: "8px 12px" }}
           >
@@ -175,154 +221,124 @@ export default function Modules() {
           minHeight: "65vh"
         }}
       >
-        {/* LEFT COLUMN: GitHub-like collapsible folder navigation */}
+        {/* LEFT COLUMN: Coverage-percentage-based categorization */}
         <div 
           style={{ 
             width: "380px", 
             flexShrink: 0,
-            background: "var(--bg-card)",
-            border: "1px solid var(--border-color)",
-            borderRadius: "8px",
-            boxShadow: "var(--shadow-sm)",
-            maxHeight: "75vh",
-            overflowY: "auto",
             display: "flex",
-            flexDirection: "column"
+            flexDirection: "column",
+            gap: "0px"
           }}
         >
+          {/* Summary stats */}
           <div 
             style={{ 
-              padding: "12px 16px", 
-              borderBottom: "1px solid var(--border-color)", 
-              background: "var(--grey-50)",
-              fontSize: "13px",
-              fontWeight: 600,
-              color: "var(--text-secondary)",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center"
+              display: "flex", 
+              gap: "8px", 
+              marginBottom: "12px",
+              flexWrap: "wrap"
             }}
           >
-            <span>DIRECTORY PATH TREE</span>
-            <span className="g-badge g-badge-grey" style={{ fontSize: "10.5px" }}>
-              {filteredModules.length} Modules
-            </span>
+            {COVERAGE_BANDS.map((band) => (
+              <span 
+                key={band.key}
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  padding: "3px 10px",
+                  borderRadius: "6px",
+                  background: band.bgColor,
+                  color: band.color,
+                  border: `1px solid ${band.borderColor}`,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "4px"
+                }}
+              >
+                {band.label}: {groupedByBand[band.key].length}
+              </span>
+            ))}
           </div>
 
-          <div style={{ padding: "12px" }}>
-            {Object.keys(groupedModules).length > 0 ? (
-              Object.keys(groupedModules).map((folderName) => {
-                const folderModules = groupedModules[folderName];
-                const isExpanded = !!expandedFolders[folderName];
+          {/* Coverage band accordions */}
+          {COVERAGE_BANDS.map((band) => {
+            const bandModules = groupedByBand[band.key];
+            const isExpanded = !!expandedBands[band.key];
+            const BandIcon = BAND_ICONS[band.key];
 
-                return (
-                  <div key={folderName} style={{ marginBottom: "10px" }}>
-                    {/* Collapsible Folder Row */}
-                    <div
-                      onClick={() => toggleFolder(folderName)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "6px 8px",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                        userSelect: "none",
-                        backgroundColor: "transparent",
-                        transition: "background-color 0.15s"
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--grey-50)")}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                    >
-                      {isExpanded ? <ChevronDown size={14} style={{ color: "var(--grey-500)" }} /> : <ChevronRight size={14} style={{ color: "var(--grey-500)" }} />}
-                      {isExpanded ? <FolderOpen size={16} style={{ color: "var(--bmc-orange)" }} /> : <Folder size={16} style={{ color: "var(--bmc-orange)" }} />}
-                      <span 
-                        style={{ 
-                          fontSize: "13px", 
-                          fontFamily: "var(--font-mono)", 
-                          fontWeight: 600, 
-                          color: "var(--text-primary)",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap"
-                        }}
-                      >
-                        {folderName === "root" ? "/" : folderName}
-                      </span>
-                      <span style={{ fontSize: "11px", color: "var(--text-secondary)", marginLeft: "auto" }}>
-                        ({folderModules.length})
-                      </span>
-                    </div>
-
-                    {/* Folder Files List */}
-                    {isExpanded && (
-                      <div style={{ paddingLeft: "18px", marginTop: "4px", display: "flex", flexDirection: "column", gap: "2px" }}>
-                        {folderModules.map((module) => {
-                          const isSelected = module.id === selectedModuleId;
-                          return (
-                            <div
-                              key={module.id}
-                              onClick={() => setSelectedModuleId(module.id)}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                gap: "8px",
-                                padding: "6px 10px",
-                                borderRadius: "6px",
-                                cursor: "pointer",
-                                borderLeft: isSelected ? "3px solid var(--bmc-orange)" : "3px solid transparent",
-                                backgroundColor: isSelected ? "var(--bmc-orange-light)" : "transparent",
-                                transition: "all 0.15s ease",
-                                userSelect: "none"
-                              }}
-                              onMouseEnter={(e) => {
-                                if (!isSelected) {
-                                  e.currentTarget.style.backgroundColor = "var(--grey-50)";
-                                }
-                              }}
-                              onMouseLeave={(e) => {
-                                if (!isSelected) {
-                                  e.currentTarget.style.backgroundColor = "transparent";
-                                }
-                              }}
-                            >
-                              <FileCode size={14} style={{ color: isSelected ? "var(--bmc-orange)" : "var(--google-blue-600)", flexShrink: 0 }} />
-                              <span 
-                                style={{ 
-                                  fontSize: "12.5px", 
-                                  fontWeight: isSelected ? 600 : 500,
-                                  color: isSelected ? "var(--bmc-orange)" : "var(--text-primary)",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  flex: 1
-                                }}
-                              >
-                                {module.moduleName}
-                              </span>
-
-                              {/* Tiny Coverage Metric Tag */}
-                              <span 
-                                className={`g-badge ${module.lineCoverage >= 80 ? "g-badge-green" : module.lineCoverage >= 50 ? "g-badge-yellow" : "g-badge-red"}`}
-                                style={{ fontSize: "10.5px", fontWeight: 700, padding: "1px 5px", flexShrink: 0 }}
-                              >
-                                {module.lineCoverage}%
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
+            return (
+              <div key={band.key} className="coverage-accordion">
+                <div 
+                  className="coverage-accordion-header"
+                  onClick={() => toggleBand(band.key)}
+                >
+                  <div className="band-label">
+                    {isExpanded ? <ChevronDown size={14} style={{ color: "var(--grey-500)" }} /> : <ChevronRight size={14} style={{ color: "var(--grey-500)" }} />}
+                    <span className="band-dot" style={{ background: band.color }} />
+                    <BandIcon size={14} style={{ color: band.color }} />
+                    <span>{band.label}</span>
+                    <span style={{ fontSize: "11px", fontWeight: 400, color: "var(--text-secondary)" }}>
+                      ({band.range})
+                    </span>
                   </div>
-                );
-              })
-            ) : (
-              <div style={{ textAlign: "center", padding: "30px", color: "var(--text-secondary)", fontSize: "13px" }}>
-                No folders or modules found.
+                  <span 
+                    className="band-count"
+                    style={{ 
+                      background: band.bgColor, 
+                      color: band.color,
+                      border: `1px solid ${band.borderColor}`
+                    }}
+                  >
+                    {bandModules.length}
+                  </span>
+                </div>
+
+                {isExpanded && bandModules.length > 0 && (
+                  <div className="coverage-accordion-body">
+                    {bandModules.map((module) => {
+                      const isSelected = module.id === selectedModuleId;
+                      return (
+                        <div
+                          key={module.id}
+                          className={`coverage-file-item ${isSelected ? "selected" : ""}`}
+                          onClick={() => setSelectedModuleId(module.id)}
+                        >
+                          <FileCode size={14} style={{ color: isSelected ? "var(--bmc-orange)" : "var(--google-blue-600)", flexShrink: 0 }} />
+                          <span className="file-name">
+                            {module.moduleName}
+                          </span>
+                          <span 
+                            className="g-badge g-badge-grey"
+                            style={{ fontSize: "10px", padding: "1px 5px", flexShrink: 0 }}
+                          >
+                            {module.language}
+                          </span>
+                          <span 
+                            className={`g-badge ${module.lineCoverage >= 80 ? "g-badge-green" : module.lineCoverage >= 50 ? "g-badge-yellow" : "g-badge-red"}`}
+                            style={{ fontSize: "10.5px", fontWeight: 700, padding: "1px 5px", flexShrink: 0 }}
+                          >
+                            {module.lineCoverage}%
+                          </span>
+
+                          {/* Tooltip showing full path on hover */}
+                          <span className="file-tooltip">
+                            {module.modulePath || module.moduleName}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {isExpanded && bandModules.length === 0 && (
+                  <div className="coverage-accordion-body" style={{ padding: "16px", textAlign: "center", color: "var(--text-secondary)", fontSize: "12px" }}>
+                    No modules in this range
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            );
+          })}
         </div>
 
         {/* RIGHT COLUMN: Interactive coverage analysis breakdown */}
@@ -355,6 +371,22 @@ export default function Modules() {
                     <span className="g-badge g-badge-grey" style={{ fontSize: "11px" }}>{selectedModule.language}</span>
                     <RiskBadge risk={selectedModule.riskLevel} />
                     <StatusBadge status={selectedModule.status} />
+                  </div>
+                  {/* Inline full path display */}
+                  <div 
+                    style={{ 
+                      marginTop: "10px",
+                      fontSize: "11.5px",
+                      fontFamily: "var(--font-mono)",
+                      color: "var(--text-secondary)",
+                      background: "var(--grey-50)",
+                      padding: "4px 8px",
+                      borderRadius: "4px",
+                      border: "1px solid var(--border-color)",
+                      wordBreak: "break-all"
+                    }}
+                  >
+                    {selectedModule.modulePath}
                   </div>
                 </div>
 
@@ -448,13 +480,12 @@ export default function Modules() {
                 </div>
               </div>
 
-              {/* Heatmap & Path Detail */}
+              {/* Heatmap & Quality Assessment */}
               <div 
                 style={{ 
                   display: "grid", 
                   gridTemplateColumns: "1fr 1fr", 
-                  gap: "20px",
-                  marginBottom: "24px"
+                  gap: "20px"
                 }}
               >
                 <div className="g-card" style={{ padding: "16px", boxShadow: "none", border: "1px solid var(--border-color)" }}>
@@ -480,26 +511,6 @@ export default function Modules() {
                   </div>
                 </div>
               </div>
-
-              {/* Path Viewer */}
-              <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                Full Path Location
-              </span>
-              <div 
-                style={{ 
-                  background: "var(--grey-50)", 
-                  border: "1px solid var(--border-color)", 
-                  borderRadius: "6px", 
-                  padding: "12px 16px", 
-                  fontFamily: "var(--font-mono)", 
-                  fontSize: "12.5px", 
-                  color: "var(--grey-800)",
-                  wordBreak: "break-all",
-                  marginTop: "6px"
-                }}
-              >
-                {selectedModule.modulePath}
-              </div>
             </div>
           ) : loadingDetails ? (
             <div className="g-card" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "400px" }}>
@@ -512,7 +523,7 @@ export default function Modules() {
               <FileSpreadsheet size={48} style={{ color: "var(--grey-300)", marginBottom: "12px" }} />
               <h3>Select a Module</h3>
               <p style={{ fontSize: "13px", marginTop: "4px" }}>
-                Please select a module file from the tree navigation pane on the left to review its detailed coverage.
+                Please select a module file from the coverage categories on the left to review its detailed coverage.
               </p>
             </div>
           )}

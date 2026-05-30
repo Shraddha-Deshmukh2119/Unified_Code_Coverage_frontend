@@ -153,7 +153,12 @@ console.log("Filtered:", filteredHistory);
             </thead>
 
             <tbody>
-              {gate.rules.map((rule: any, index: number) => (
+              {gate.rules
+                .filter((rule: any) => {
+                  const name = (rule.name || "").toLowerCase();
+                  return !name.includes("security") && !name.includes("maintainability");
+                })
+                .map((rule: any, index: number) => (
                 <tr key={index}>
                   <td style={{ fontWeight: 500 }}>{rule.name}</td>
                   <td>{rule.expected}</td>

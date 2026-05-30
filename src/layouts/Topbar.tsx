@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import { getLatestBuild } from "../api/dashboardApi";
 import { 
   GitBranch, 
-  Box, 
   Database, 
   LayoutDashboard, 
   Boxes, 
@@ -111,39 +110,6 @@ export default function Topbar() {
   Unified Coverage Intelligence
 </span>
         </Link>
-
-        {/* Dynamic Project Context Selector */}
-        {latestBuild && (
-          <a
-            href={latestBuild.repositoryUrl || "https://github.com"}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              background: "rgba(255, 107, 0, 0.1)",
-              padding: "5px 10px",
-              borderRadius: "6px",
-              color: "#E2E8F0",
-              fontSize: "12.5px",
-              border: "1px solid rgba(255, 107, 0, 0.3)",
-              cursor: "pointer",
-              textDecoration: "none"
-            }}
-            title={`Active Project: ${latestBuild.repositoryName}`}
-          >
-            <Box size={13} style={{ color: "var(--bmc-orange)" }} />
-            <span style={{ fontWeight: 600 }}>
-              {latestBuild.repositoryName.split(" ")[0]}...
-            </span>
-            <span style={{ color: "rgba(255,255,255,0.2)" }}>|</span>
-            <div style={{ display: "flex", alignItems: "center", gap: "3px", color: "#CBD5E1" }}>
-              <GitBranch size={12} />
-              <span>{latestBuild.branch}</span>
-            </div>
-          </a>
-        )}
       </div>
 
       {/* Middle side: Centered Google Cloud-style Navigation Tabs with Icons */}

@@ -190,13 +190,13 @@ a:hover {
 .main-wrapper {
   display: flex;
   flex: 1;
-  margin-top: 72px; /* Topbar height */
+  margin-top: 112px; /* Topbar (76px) + RepoInfoBar (36px) */
   flex-direction: column;
 }
 
 .content-pane {
   flex: 1;
-  padding: 32px 24px 60px 24px;
+  padding: 36px 32px 60px 32px;
   background-color: var(--bg-app);
   animation: fadeIn 0.4s ease-out forwards;
 }
@@ -260,12 +260,15 @@ a:hover {
 .g-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 24px;
   box-shadow: var(--shadow-sm);
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
   position: relative;
   overflow: hidden;
+}
+.g-card:hover {
+  box-shadow: var(--shadow-md);
 }
 .g-card.interactive:hover {
   transform: translateY(-2px);
@@ -664,3 +667,324 @@ a:hover {
   border-color: var(--border-color);
 }
 
+/* ══════════════════════════════════════════════════════════════
+   Repository Info Bar (below navbar)
+   ══════════════════════════════════════════════════════════════ */
+.repo-info-bar {
+  position: fixed;
+  top: 76px; /* Below the topbar */
+  left: 0;
+  right: 0;
+  z-index: 999;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 32px;
+  background: var(--grey-50);
+  border-bottom: 1px solid var(--border-color);
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+.repo-info-bar a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+.repo-info-bar a:hover {
+  color: var(--bmc-orange);
+  text-decoration: underline;
+}
+.repo-info-bar .repo-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 12.5px;
+}
+.repo-info-bar .repo-separator {
+  color: var(--grey-300);
+  user-select: none;
+}
+.repo-info-bar .repo-branch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  background: var(--grey-100);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.dark-theme .repo-info-bar {
+  background: #0f172a;
+  border-bottom-color: var(--border-color);
+}
+.dark-theme .repo-info-bar .repo-branch {
+  background: var(--grey-200);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Coverage Accordion (Modules page)
+   ══════════════════════════════════════════════════════════════ */
+.coverage-accordion {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  transition: border-color 0.2s ease;
+}
+.coverage-accordion:hover {
+  border-color: var(--grey-400);
+}
+.coverage-accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  cursor: pointer;
+  user-select: none;
+  background: var(--bg-card);
+  transition: background 0.15s ease;
+  gap: 10px;
+}
+.coverage-accordion-header:hover {
+  background: var(--grey-50);
+}
+.coverage-accordion-header .band-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.coverage-accordion-header .band-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.coverage-accordion-header .band-count {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.coverage-accordion-body {
+  border-top: 1px solid var(--border-color);
+  background: var(--grey-20);
+  max-height: 280px;
+  overflow-y: auto;
+}
+.coverage-file-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-bottom: 1px solid var(--grey-100);
+  position: relative;
+}
+.coverage-file-item:last-child {
+  border-bottom: none;
+}
+.coverage-file-item:hover {
+  background: var(--grey-50);
+}
+.coverage-file-item.selected {
+  background: var(--bmc-orange-light);
+  border-left: 3px solid var(--bmc-orange);
+  padding-left: 11px;
+}
+.coverage-file-item .file-name {
+  flex: 1;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.coverage-file-item.selected .file-name {
+  font-weight: 600;
+  color: var(--bmc-orange);
+}
+
+/* Tooltip for file path on hover */
+.coverage-file-item .file-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 14px;
+  background: var(--grey-900);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.coverage-file-item .file-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 16px;
+  border: 5px solid transparent;
+  border-top-color: var(--grey-900);
+}
+.coverage-file-item:hover .file-tooltip {
+  display: block;
+  animation: fadeIn 0.15s ease;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Build Detail Panel (Builds page)
+   ══════════════════════════════════════════════════════════════ */
+.build-detail-panel {
+  animation: fadeIn 0.3s ease-out forwards;
+  border-top: 3px solid var(--bmc-orange);
+}
+.build-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+.build-detail-metric {
+  background: var(--grey-50);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.15s ease;
+}
+.build-detail-metric:hover {
+  border-color: var(--grey-400);
+}
+.build-detail-metric .metric-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.build-detail-metric .metric-value {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--text-primary);
+}
+
+/* Clickable table rows */
+.g-table tbody tr.clickable-row {
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.g-table tbody tr.clickable-row:hover {
+  background-color: var(--google-blue-50);
+}
+.g-table tbody tr.clickable-row.selected-row {
+  background-color: var(--bmc-orange-light);
+  border-left: 3px solid var(--bmc-orange);
+}
+.dark-theme .g-table tbody tr.clickable-row.selected-row {
+  background-color: rgba(255, 107, 0, 0.12);
+}
+.dark-theme .g-table tbody tr.clickable-row:hover {
+  background-color: rgba(255, 107, 0, 0.08);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Language View Header
+   ══════════════════════════════════════════════════════════════ */
+.language-view-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--bmc-orange-light);
+  color: var(--bmc-orange);
+  border: 1px solid var(--bmc-orange-border);
+  margin-left: 12px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Responsive Breakpoints
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 1200px) {
+  .content-pane {
+    padding: 28px 20px 48px 20px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  .repo-info-bar {
+    padding: 0 16px;
+    font-size: 11px;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-pane {
+    padding: 20px 12px 40px 12px;
+  }
+  .grid-cols-4 {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .repo-info-bar {
+    height: auto;
+    padding: 6px 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .main-wrapper {
+    margin-top: 120px;
+  }
+  .g-card {
+    padding: 16px;
+  }
+  h1 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+  .repo-info-bar .repo-name {
+    font-size: 11px;
+  }
+}
