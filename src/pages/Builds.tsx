@@ -961,7 +961,7 @@ export default function Builds() {
                 alignItems: "center",
                 gap: "8px",
                 flex: "none",
-                width: "140px",
+                width: "200px",
                 background: "var(--grey-50)",
                 borderRadius: "6px",
                 padding: "7px 12px",
@@ -986,8 +986,8 @@ export default function Builds() {
                   alignItems: "center"
                 }}
               >
-                <span>Select...</span>
-                <ChevronDown size={14} style={{ transition: "transform 0.2s", transform: isSearchDropdownOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Search build ID...</span>
+                <ChevronDown size={14} style={{ flexShrink: 0, transition: "transform 0.2s", transform: isSearchDropdownOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
               </div>
               
               {isSearchDropdownOpen && (
