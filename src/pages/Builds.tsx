@@ -20,6 +20,7 @@ import {
   Shield,
   ArrowLeft,
   Layers,
+  ChevronDown,
 } from "lucide-react";
 
 export default function Builds() {
@@ -28,6 +29,7 @@ export default function Builds() {
   const [showBuildDetail, setShowBuildDetail] = useState(false);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [buildSearch, setBuildSearch] = useState("");
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
 
   useEffect(() => {
     getBuildHistory()
@@ -138,6 +140,16 @@ export default function Builds() {
     };
   };
   const buildDelta = getSelectedBuildDelta();
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!(e.target as Element).closest('#custom-build-selector')) {
+        setIsSearchDropdownOpen(false);
+      }
+    };
+    if (isSearchDropdownOpen) document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isSearchDropdownOpen]);
 
   return (
     <MainLayout>
@@ -941,48 +953,121 @@ export default function Builds() {
           >
             {/* Direct Build Selector */}
             <div
+              id="custom-build-selector"
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
                 flex: 1,
-                minWidth: "180px",
+                minWidth: "240px",
                 background: "var(--grey-50)",
                 borderRadius: "6px",
                 padding: "7px 12px",
                 border: "1px solid var(--border-color)",
+                position: "relative",
+                cursor: "pointer",
+                userSelect: "none"
               }}
+              onClick={() => setIsSearchDropdownOpen(!isSearchDropdownOpen)}
             >
               <Search
                 size={14}
                 style={{ color: "var(--text-secondary)", flexShrink: 0 }}
               />
-              <select
-                id="build-search-select"
-                value=""
-                onChange={(e) => {
-                  if (e.target.value) {
-                    handleSelectBuild(Number(e.target.value));
-                  }
-                }}
+              <div
                 style={{
-                  border: "none",
-                  background: "transparent",
-                  outline: "none",
+                  flex: 1,
                   fontSize: "13.5px",
-                  color: "var(--text-primary)",
-                  fontFamily: "var(--font-body)",
-                  width: "100%",
-                  cursor: "pointer"
+                  color: "var(--text-secondary)",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center"
                 }}
               >
-                <option value="" disabled>Select a build ID to inspect...</option>
-                {builds.map(b => (
-                  <option key={b.buildId} value={b.buildId}>
-                    Build #{b.buildId} {b.branch ? `(${b.branch})` : ""} - {b.status}
-                  </option>
-                ))}
-              </select>
+                <span>Search or select build ID...</span>
+                <ChevronDown size={14} style={{ transition: "transform 0.2s", transform: isSearchDropdownOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
+              </div>
+              
+              {isSearchDropdownOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 8px)",
+                    left: 0,
+                    width: "100%",
+                    maxHeight: "350px",
+                    overflowY: "auto",
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "8px",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
+                    zIndex: 100,
+                    animation: "slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                    display: "flex",
+                    flexDirection: "column",
+                    padding: "6px"
+                  }}
+                >
+                  <style>{`
+                    @keyframes slideDown {
+                      from { opacity: 0; transform: translateY(-8px); }
+                      to { opacity: 1; transform: translateY(0); }
+                    }
+                    .custom-dropdown-item {
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                      padding: 10px 14px;
+                      border-radius: 6px;
+                      transition: all 0.2s;
+                    }
+                    .custom-dropdown-item:hover {
+                      background: var(--grey-50);
+                    }
+                  `}</style>
+                  {builds.length === 0 && (
+                    <div style={{ padding: "12px", textAlign: "center", color: "var(--text-secondary)", fontSize: "12.5px" }}>
+                      No builds available
+                    </div>
+                  )}
+                  {builds.map(b => {
+                    const isSuccess = b.status === "SUCCESS" || b.status === "PASSED";
+                    return (
+                      <div
+                        key={b.buildId}
+                        className="custom-dropdown-item"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsSearchDropdownOpen(false);
+                          handleSelectBuild(b.buildId);
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                          <span style={{ fontSize: "15px", fontWeight: 700, fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                            {b.buildId}
+                          </span>
+                          <span style={{ 
+                            fontSize: "11px", 
+                            fontWeight: 700, 
+                            padding: "2px 8px", 
+                            borderRadius: "12px", 
+                            background: isSuccess ? "var(--google-green-50)" : "var(--google-red-50)",
+                            color: isSuccess ? "var(--google-green-600)" : "var(--google-red-600)",
+                            textTransform: "uppercase"
+                          }}>
+                            {b.status}
+                          </span>
+                        </div>
+                        {b.branch && (
+                          <span style={{ fontSize: "12px", color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: "4px" }}>
+                            <GitBranch size={12} /> {b.branch}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <div
