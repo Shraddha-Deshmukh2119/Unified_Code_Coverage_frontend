@@ -360,13 +360,13 @@ export default function CodeHealth() {
         />
       </div>
 
-      {/* Ratings Row */}
+      {/* Primary KPI Grid */}
       <div 
-        style={{
+        style={{ 
           display: "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
+          gridTemplateColumns: "repeat(4, 1fr)",
           gap: "20px",
-          marginBottom: "24px"
+          marginBottom: "32px"
         }}
       >
         <MetricCard 
@@ -390,12 +390,6 @@ export default function CodeHealth() {
           value={summary.maintainabilityRating} 
           subtitle="Software complexity index"
           valueColor={summary.maintainabilityRating === "A" ? "var(--google-green-600)" : "var(--google-yellow-600)"}
-        />
-
-        <MetricCard
-          title="Technical Debt"
-          value={`${(summary.technicalDebtMinutes / 60).toFixed(1)} hrs`}
-          subtitle="Estimated time to clean smells"
         />
 
         <MetricCard
@@ -449,9 +443,6 @@ export default function CodeHealth() {
           </div>
           <div>
             Code Smells: <strong style={{ color: "var(--google-blue-600)" }}>{summary.codeSmells}</strong>
-          </div>
-          <div>
-            Technical Debt: <strong style={{ color: "var(--text-primary)" }}>{(summary.technicalDebtMinutes / 60).toFixed(1)} hrs</strong>
           </div>
         </div>
       </div>
@@ -745,17 +736,11 @@ export default function CodeHealth() {
                   {/* Left Column: Code Insights */}
                   <div style={{ display: "flex", flexDirection: "column", gap: "16px", minWidth: 0 }}>
                     {/* Key properties grid */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 16px", background: "var(--grey-50)", padding: "12px 16px", borderRadius: "6px", fontSize: "12.5px", border: "1px solid var(--border-color)" }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                        <span style={{ color: "var(--text-secondary)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.04em" }}>File</span>
-                        <strong style={{ fontFamily: "var(--font-mono)", fontSize: "12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={selectedIssueDetails.file}>
-                          {selectedIssueDetails.file.includes("/") ? selectedIssueDetails.file.substring(selectedIssueDetails.file.lastIndexOf("/") + 1) : selectedIssueDetails.file}
-                        </strong>
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                        <span style={{ color: "var(--text-secondary)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Effort</span>
-                        <strong>{selectedIssueDetails.effortMinutes ?? 5} mins</strong>
-                      </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "2px", background: "var(--grey-50)", padding: "12px 16px", borderRadius: "6px", fontSize: "12.5px", border: "1px solid var(--border-color)" }}>
+                      <span style={{ color: "var(--text-secondary)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.04em" }}>File</span>
+                      <strong style={{ fontFamily: "var(--font-mono)", fontSize: "12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }} title={selectedIssueDetails.file}>
+                        {selectedIssueDetails.file.includes("/") ? selectedIssueDetails.file.substring(selectedIssueDetails.file.lastIndexOf("/") + 1) : selectedIssueDetails.file}
+                      </strong>
                     </div>
 
                     {/* Insights Table: ruleDescription, recommendation, impact */}
