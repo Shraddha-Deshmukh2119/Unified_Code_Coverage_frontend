@@ -125,16 +125,17 @@ export default function Builds() {
 
   const selectedBuild = builds.find((b) => b.buildId === selectedBuildId);
 
+  const durationMs = selectedBuild ? (selectedBuild.buildDuration ?? selectedBuild.duration ?? selectedBuild.executionTime ?? selectedBuild.durationMs ?? selectedBuild.timeTaken) : null;
+  const qgStatusRaw = selectedBuild ? (selectedBuild.qualityGateStatus ?? selectedBuild.qualityGate ?? selectedBuild.sonarQualityGate ?? selectedBuild.gateStatus) : null;
+  const qgStatus = typeof qgStatusRaw === 'object' && qgStatusRaw !== null ? qgStatusRaw.status : qgStatusRaw;
+
   const getSelectedBuildDelta = () => {
     if (!selectedBuild) return null;
-    const sortedBuilds = [...builds].sort((a, b) => a.buildId - b.buildId);
-    const idx = sortedBuilds.findIndex(
-      (b) => b.buildId === selectedBuild.buildId
-    );
-    if (idx <= 0) return null;
-    const prevBuild = sortedBuilds[idx - 1];
-    const delta =
-      (selectedBuild.coverage ?? 0) - (prevBuild.coverage ?? 0);
+    const idx = builds.findIndex((b) => b.buildId === selectedBuild.buildId);
+    // builds is descending (newest first). The previous build is at idx + 1.
+    if (idx < 0 || idx >= builds.length - 1) return null;
+    const prevBuild = builds[idx + 1];
+    const delta = (selectedBuild.coverage ?? 0) - (prevBuild.coverage ?? 0);
     return {
       delta: parseFloat(delta.toFixed(2)),
       prevBuildId: prevBuild.buildId,
@@ -801,11 +802,7 @@ export default function Builds() {
                   marginBottom: "10px",
                 }}
               >
-                {selectedBuild.buildDuration ?? selectedBuild.duration
-                  ? formatDuration(
-                      selectedBuild.buildDuration ?? selectedBuild.duration
-                    )
-                  : "—"}
+                {durationMs ? formatDuration(durationMs) : "—"}
               </div>
               <div
                 style={{ fontSize: "12px", color: "var(--text-secondary)" }}
@@ -867,9 +864,9 @@ export default function Builds() {
               style={{
                 padding: "20px",
                 borderTop: `3px solid ${
-                  selectedBuild.qualityGateStatus === "PASSED"
+                  qgStatus === "PASSED" || qgStatus === "SUCCESS" || qgStatus === "OK"
                     ? "var(--google-green-600)"
-                    : selectedBuild.qualityGateStatus
+                    : qgStatus
                     ? "var(--google-red-600)"
                     : "var(--grey-300)"
                 }`,
@@ -887,9 +884,9 @@ export default function Builds() {
                   className="metric-icon-box"
                   style={{
                     background:
-                      selectedBuild.qualityGateStatus === "PASSED"
+                      qgStatus === "PASSED" || qgStatus === "SUCCESS" || qgStatus === "OK"
                         ? "var(--google-green-50)"
-                        : selectedBuild.qualityGateStatus
+                        : qgStatus
                         ? "var(--google-red-50)"
                         : "var(--grey-100)",
                   }}
@@ -898,9 +895,9 @@ export default function Builds() {
                     size={17}
                     style={{
                       color:
-                        selectedBuild.qualityGateStatus === "PASSED"
+                        qgStatus === "PASSED" || qgStatus === "SUCCESS" || qgStatus === "OK"
                           ? "var(--google-green-600)"
-                          : selectedBuild.qualityGateStatus
+                          : qgStatus
                           ? "var(--google-red-600)"
                           : "var(--grey-400)",
                     }}
@@ -913,9 +910,9 @@ export default function Builds() {
                   fontSize: "30px",
                   fontWeight: 800,
                   color:
-                    selectedBuild.qualityGateStatus === "PASSED"
+                    qgStatus === "PASSED" || qgStatus === "SUCCESS" || qgStatus === "OK"
                       ? "var(--google-green-600)"
-                      : selectedBuild.qualityGateStatus
+                      : qgStatus
                       ? "var(--google-red-600)"
                       : "var(--text-secondary)",
                   fontFamily: "var(--font-display)",
@@ -923,7 +920,7 @@ export default function Builds() {
                   marginBottom: "10px",
                 }}
               >
-                {selectedBuild.qualityGateStatus ?? "N/A"}
+                {qgStatus ?? "N/A"}
               </div>
               <div
                 style={{ fontSize: "12px", color: "var(--text-secondary)" }}
