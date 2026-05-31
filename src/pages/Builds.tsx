@@ -548,7 +548,7 @@ export default function Builds() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
               gap: "16px",
             }}
           >
@@ -556,7 +556,7 @@ export default function Builds() {
             <div
               className="g-card build-detail-metric-card"
               style={{
-                padding: "28px",
+                padding: "20px",
                 borderTop: `3px solid ${getCoverageColor(
                   selectedBuild.coverage ?? 0
                 )}`,
@@ -589,7 +589,7 @@ export default function Builds() {
               </div>
               <div
                 style={{
-                  fontSize: "52px",
+                  fontSize: "42px",
                   fontWeight: 800,
                   color: getCoverageColor(selectedBuild.coverage ?? 0),
                   fontFamily: "var(--font-display)",
@@ -629,7 +629,7 @@ export default function Builds() {
             <div
               className="g-card build-detail-metric-card"
               style={{
-                padding: "28px",
+                padding: "20px",
                 borderTop: `3px solid ${
                   buildDelta && buildDelta.delta >= 0
                     ? "var(--google-green-600)"
@@ -672,7 +672,7 @@ export default function Builds() {
                 <>
                   <div
                     style={{
-                      fontSize: "52px",
+                      fontSize: "42px",
                       fontWeight: 800,
                       color:
                         buildDelta.delta >= 0
@@ -719,7 +719,7 @@ export default function Builds() {
             <div
               className="g-card build-detail-metric-card"
               style={{
-                padding: "28px",
+                padding: "20px",
                 borderTop: `3px solid ${getStatusBarColor(
                   selectedBuild.status
                 )}`,
@@ -766,7 +766,7 @@ export default function Builds() {
             <div
               className="g-card build-detail-metric-card"
               style={{
-                padding: "28px",
+                padding: "20px",
                 borderTop: "3px solid var(--google-blue-600)",
               }}
             >
@@ -791,7 +791,7 @@ export default function Builds() {
               </div>
               <div
                 style={{
-                  fontSize: "44px",
+                  fontSize: "36px",
                   fontWeight: 800,
                   color: "var(--text-primary)",
                   fontFamily: "var(--font-display)",
@@ -816,7 +816,7 @@ export default function Builds() {
             <div
               className="g-card build-detail-metric-card"
               style={{
-                padding: "28px",
+                padding: "20px",
                 borderTop: "3px solid var(--bmc-orange)",
               }}
             >
@@ -841,7 +841,7 @@ export default function Builds() {
               </div>
               <div
                 style={{
-                  fontSize: "24px",
+                  fontSize: "20px",
                   fontWeight: 700,
                   color: "var(--text-primary)",
                   fontFamily: "var(--font-mono)",
@@ -863,7 +863,7 @@ export default function Builds() {
             <div
               className="g-card build-detail-metric-card"
               style={{
-                padding: "28px",
+                padding: "20px",
                 borderTop: `3px solid ${
                   selectedBuild.qualityGateStatus === "PASSED"
                     ? "var(--google-green-600)"
@@ -958,8 +958,8 @@ export default function Builds() {
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
-                flex: 1,
-                minWidth: "240px",
+                flex: "none",
+                width: "140px",
                 background: "var(--grey-50)",
                 borderRadius: "6px",
                 padding: "7px 12px",
@@ -984,7 +984,7 @@ export default function Builds() {
                   alignItems: "center"
                 }}
               >
-                <span>Search or select build ID...</span>
+                <span>Select...</span>
                 <ChevronDown size={14} style={{ transition: "transform 0.2s", transform: isSearchDropdownOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
               </div>
               
@@ -1018,8 +1018,11 @@ export default function Builds() {
                       align-items: center;
                       justify-content: space-between;
                       padding: 10px 14px;
-                      border-radius: 6px;
+                      border-bottom: 1px solid var(--border-color);
                       transition: all 0.2s;
+                    }
+                    .custom-dropdown-item:last-child {
+                      border-bottom: none;
                     }
                     .custom-dropdown-item:hover {
                       background: var(--grey-50);

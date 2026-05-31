@@ -4,10 +4,23 @@ interface Props {
 
 export default function StatusBadge({ status }: Props) {
   const isHealthy = status === "HEALTHY" || status === "SUCCESS" || status === "PASSED";
-  const badgeClass = isHealthy ? "g-badge-green" : "g-badge-red";
+  const bg = isHealthy ? "var(--google-green-50)" : "var(--google-red-50)";
+  const color = isHealthy ? "var(--google-green-600)" : "var(--google-red-600)";
 
   return (
-    <span className={`g-badge ${badgeClass}`}>
+    <span style={{ 
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "11px", 
+      fontWeight: 700, 
+      padding: "3px 10px", 
+      borderRadius: "12px", 
+      background: bg,
+      color: color,
+      textTransform: "uppercase",
+      letterSpacing: "0.03em"
+    }}>
       {status}
     </span>
   );
