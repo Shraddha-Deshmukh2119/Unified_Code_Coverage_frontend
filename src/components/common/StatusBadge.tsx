@@ -6,6 +6,11 @@ export default function StatusBadge({ status }: Props) {
   const isHealthy = status === "HEALTHY" || status === "SUCCESS" || status === "PASSED";
   const bg = isHealthy ? "var(--google-green-50)" : "var(--google-red-50)";
   const color = isHealthy ? "var(--google-green-600)" : "var(--google-red-600)";
+  
+  let displayText = status || "FAILED";
+  if (!isHealthy && (status === "FAILURE" || !status)) {
+    displayText = "FAILED";
+  }
 
   return (
     <span style={{ 
@@ -21,7 +26,7 @@ export default function StatusBadge({ status }: Props) {
       textTransform: "uppercase",
       letterSpacing: "0.03em"
     }}>
-      {status}
+      {displayText}
     </span>
   );
 }
