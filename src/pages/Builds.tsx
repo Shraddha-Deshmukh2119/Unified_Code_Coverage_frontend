@@ -939,7 +939,7 @@ export default function Builds() {
               flexWrap: "wrap",
             }}
           >
-            {/* Search input */}
+            {/* Direct Build Selector */}
             <div
               style={{
                 display: "flex",
@@ -957,12 +957,14 @@ export default function Builds() {
                 size={14}
                 style={{ color: "var(--text-secondary)", flexShrink: 0 }}
               />
-              <input
-                id="build-search-input"
-                type="text"
-                placeholder="Search by build ID..."
-                value={buildSearch}
-                onChange={(e) => setBuildSearch(e.target.value)}
+              <select
+                id="build-search-select"
+                value=""
+                onChange={(e) => {
+                  if (e.target.value) {
+                    handleSelectBuild(Number(e.target.value));
+                  }
+                }}
                 style={{
                   border: "none",
                   background: "transparent",
@@ -971,8 +973,16 @@ export default function Builds() {
                   color: "var(--text-primary)",
                   fontFamily: "var(--font-body)",
                   width: "100%",
+                  cursor: "pointer"
                 }}
-              />
+              >
+                <option value="" disabled>Select a build ID to inspect...</option>
+                {builds.map(b => (
+                  <option key={b.buildId} value={b.buildId}>
+                    Build #{b.buildId} {b.branch ? `(${b.branch})` : ""} - {b.status}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div

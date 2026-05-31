@@ -72,7 +72,14 @@ export default function Modules() {
         const seen = new Set<string>();
         const dataList = Array.isArray(res.data) ? [...res.data].reverse() : [];
         const uniqueModules = dataList.filter((mod: any) => {
-          const key = mod.moduleName;
+          const key = mod.moduleName || "";
+          
+          // Filter out .cc, gmock, and gtest files as requested
+          const lowerKey = key.toLowerCase();
+          if (lowerKey.endsWith(".cc") || lowerKey.includes("gmock") || lowerKey.includes("gtest")) {
+            return false;
+          }
+
           if (seen.has(key)) return false;
           seen.add(key);
           return true;
