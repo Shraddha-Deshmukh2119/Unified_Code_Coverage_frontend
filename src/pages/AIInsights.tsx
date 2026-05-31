@@ -15,6 +15,7 @@ import {
   BarChart3,
   Shield,
   Bug,
+  Sparkles,
 } from "lucide-react";
 
 interface AIMetrics {
@@ -55,17 +56,17 @@ export default function AIInsights() {
     return "var(--google-red-600)";
   };
 
+  const getRiskBg = (risk: number) => {
+    if (risk <= 3) return "var(--google-green-50)";
+    if (risk <= 6) return "var(--google-yellow-50)";
+    return "var(--google-red-50)";
+  };
+
   const getRiskLabel = (risk: number) => {
     if (risk <= 3) return "Low Risk";
     if (risk <= 6) return "Moderate Risk";
     if (risk <= 8) return "High Risk";
     return "Critical Risk";
-  };
-
-  const getRiskBg = (risk: number) => {
-    if (risk <= 3) return "var(--google-green-50)";
-    if (risk <= 6) return "var(--google-yellow-50)";
-    return "var(--google-red-50)";
   };
 
   if (loading) {
@@ -116,298 +117,166 @@ export default function AIInsights() {
         <div
           className="g-card"
           style={{
-            marginBottom: "24px",
-            borderLeft: "5px solid var(--bmc-orange)",
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "16px",
-            padding: "20px 24px",
+            marginBottom: "28px",
+            background: "linear-gradient(135deg, var(--grey-900), #1e293b)",
+            border: "1px solid var(--border-color)",
+            borderLeft: "6px solid var(--bmc-orange)",
+            color: "#fff",
+            padding: "24px 32px",
+            position: "relative",
+            overflow: "hidden",
+            boxShadow: "var(--shadow-md)",
           }}
         >
-          <Brain
-            size={24}
+          {/* subtle background pattern */}
+          <div
             style={{
-              color: "var(--bmc-orange)",
-              flexShrink: 0,
-              marginTop: "2px",
+              position: "absolute",
+              right: "-5%",
+              top: "-20%",
+              opacity: 0.05,
+              transform: "scale(1.5)",
             }}
-          />
-          <div>
-            <span
-              style={{
-                fontSize: "11px",
-                fontWeight: 700,
-                color: "var(--bmc-orange)",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-              }}
-            >
-              Executive Summary
-            </span>
-            <p
-              style={{
-                fontSize: "14px",
-                lineHeight: 1.65,
-                color: "var(--text-primary)",
-                marginTop: "6px",
-              }}
-            >
-              {insights.executiveSummary}
-            </p>
+          >
+            <Sparkles size={200} />
+          </div>
+          
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "20px", position: "relative", zIndex: 1 }}>
+            <div style={{
+              background: "rgba(255,107,0,0.15)",
+              padding: "12px",
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0
+            }}>
+              <Brain size={28} style={{ color: "var(--bmc-orange)" }} />
+            </div>
+            <div>
+              <span
+                style={{
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  color: "var(--bmc-orange)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  display: "block",
+                  marginBottom: "8px"
+                }}
+              >
+                Executive Summary
+              </span>
+              <p
+                style={{
+                  fontSize: "15px",
+                  lineHeight: 1.6,
+                  color: "var(--grey-100)",
+                  margin: 0,
+                  fontWeight: 400
+                }}
+              >
+                {insights.executiveSummary}
+              </p>
+            </div>
           </div>
         </div>
       )}
 
-      {/* KPI Metric Cards */}
-      <div className="grid-cols-4" style={{ marginBottom: "24px" }}>
+      {/* KPI Metric Cards using build-detail-metric-card style from CSS */}
+      <div className="grid-cols-4" style={{ marginBottom: "28px" }}>
         {/* Risk Index */}
         <div
-          className="g-card"
-          style={{ padding: "20px", position: "relative", overflow: "hidden" }}
+          className="g-card build-detail-metric-card"
+          style={{
+            padding: "24px",
+            borderTop: `4px solid ${getRiskColor(riskIndex)}`,
+          }}
         >
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "4px",
-              background: getRiskColor(riskIndex),
-            }}
-          />
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "12px",
-            }}
-          >
-            <Gauge size={16} style={{ color: "var(--text-secondary)" }} />
-            <span
-              style={{
-                fontSize: "12px",
-                color: "var(--text-secondary)",
-                fontWeight: 600,
-              }}
-            >
-              AI Risk Index
-            </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+            <div className="metric-icon-box" style={{ background: getRiskBg(riskIndex) }}>
+              <Gauge size={18} style={{ color: getRiskColor(riskIndex) }} />
+            </div>
+            <span className="metric-card-label" style={{ fontSize: "12px" }}>AI Risk Index</span>
           </div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: "6px" }}>
-            <span
-              style={{
-                fontSize: "32px",
-                fontWeight: 700,
-                color: getRiskColor(riskIndex),
-                fontFamily: "var(--font-display)",
-              }}
-            >
+          <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginBottom: "8px" }}>
+            <span style={{ fontSize: "42px", fontWeight: 800, color: getRiskColor(riskIndex), fontFamily: "var(--font-display)", lineHeight: 1 }}>
               {riskIndex}
             </span>
-            <span
-              style={{
-                fontSize: "16px",
-                color: "var(--text-secondary)",
-                fontWeight: 500,
-              }}
-            >
-              / 10
-            </span>
+            <span style={{ fontSize: "16px", color: "var(--text-secondary)", fontWeight: 600 }}>/ 10</span>
           </div>
-          <span
-            style={{
-              display: "inline-block",
-              marginTop: "8px",
-              fontSize: "11px",
-              fontWeight: 600,
-              padding: "3px 10px",
-              borderRadius: "12px",
-              background: getRiskBg(riskIndex),
-              color: getRiskColor(riskIndex),
-            }}
-          >
+          <span style={{ display: "inline-block", fontSize: "11px", fontWeight: 700, padding: "4px 10px", borderRadius: "12px", background: getRiskBg(riskIndex), color: getRiskColor(riskIndex), letterSpacing: "0.03em" }}>
             {getRiskLabel(riskIndex)}
           </span>
         </div>
 
         {/* High Risk Files */}
         <div
-          className="g-card"
-          style={{ padding: "20px", position: "relative", overflow: "hidden" }}
+          className="g-card build-detail-metric-card"
+          style={{
+            padding: "24px",
+            borderTop: "4px solid var(--google-red-600)",
+          }}
         >
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "4px",
-              background: "var(--google-red-600)",
-            }}
-          />
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "12px",
-            }}
-          >
-            <FileWarning size={16} style={{ color: "var(--text-secondary)" }} />
-            <span
-              style={{
-                fontSize: "12px",
-                color: "var(--text-secondary)",
-                fontWeight: 600,
-              }}
-            >
-              High Risk Files
-            </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+            <div className="metric-icon-box" style={{ background: "var(--google-red-50)" }}>
+              <FileWarning size={18} style={{ color: "var(--google-red-600)" }} />
+            </div>
+            <span className="metric-card-label" style={{ fontSize: "12px" }}>High Risk Files</span>
           </div>
-          <span
-            style={{
-              fontSize: "32px",
-              fontWeight: 700,
-              color: "var(--google-red-600)",
-              fontFamily: "var(--font-display)",
-            }}
-          >
+          <div style={{ fontSize: "42px", fontWeight: 800, color: "var(--google-red-600)", fontFamily: "var(--font-display)", lineHeight: 1, marginBottom: "8px" }}>
             {highRiskFiles}
-          </span>
-          <p
-            style={{
-              fontSize: "12px",
-              color: "var(--text-secondary)",
-              marginTop: "6px",
-            }}
-          >
+          </div>
+          <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
             Low coverage + high complexity
-          </p>
+          </div>
         </div>
 
         {/* Coverage Gaps */}
         <div
-          className="g-card"
-          style={{ padding: "20px", position: "relative", overflow: "hidden" }}
+          className="g-card build-detail-metric-card"
+          style={{
+            padding: "24px",
+            borderTop: "4px solid var(--google-yellow-600)",
+          }}
         >
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "4px",
-              background: "var(--google-yellow-600)",
-            }}
-          />
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "12px",
-            }}
-          >
-            <AlertTriangle
-              size={16}
-              style={{ color: "var(--text-secondary)" }}
-            />
-            <span
-              style={{
-                fontSize: "12px",
-                color: "var(--text-secondary)",
-                fontWeight: 600,
-              }}
-            >
-              Coverage Gaps
-            </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+            <div className="metric-icon-box" style={{ background: "var(--google-yellow-50)" }}>
+              <AlertTriangle size={18} style={{ color: "var(--google-yellow-600)" }} />
+            </div>
+            <span className="metric-card-label" style={{ fontSize: "12px" }}>Coverage Gaps</span>
           </div>
-          <span
-            style={{
-              fontSize: "32px",
-              fontWeight: 700,
-              color: "var(--google-yellow-700)",
-              fontFamily: "var(--font-display)",
-            }}
-          >
+          <div style={{ fontSize: "42px", fontWeight: 800, color: "var(--google-yellow-600)", fontFamily: "var(--font-display)", lineHeight: 1, marginBottom: "8px" }}>
             {coverageGaps}
-          </span>
-          <p
-            style={{
-              fontSize: "12px",
-              color: "var(--text-secondary)",
-              marginTop: "6px",
-            }}
-          >
+          </div>
+          <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
             Untested logical branches
-          </p>
+          </div>
         </div>
 
         {/* Potential Gain */}
         <div
-          className="g-card"
-          style={{ padding: "20px", position: "relative", overflow: "hidden" }}
+          className="g-card build-detail-metric-card"
+          style={{
+            padding: "24px",
+            borderTop: "4px solid var(--google-green-600)",
+          }}
         >
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "4px",
-              background: "var(--google-green-600)",
-            }}
-          />
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "12px",
-            }}
-          >
-            <TrendingUp size={16} style={{ color: "var(--text-secondary)" }} />
-            <span
-              style={{
-                fontSize: "12px",
-                color: "var(--text-secondary)",
-                fontWeight: 600,
-              }}
-            >
-              Potential Gain
-            </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+            <div className="metric-icon-box" style={{ background: "var(--google-green-50)" }}>
+              <TrendingUp size={18} style={{ color: "var(--google-green-600)" }} />
+            </div>
+            <span className="metric-card-label" style={{ fontSize: "12px" }}>Potential Gain</span>
           </div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
-            <span
-              style={{
-                fontSize: "32px",
-                fontWeight: 700,
-                color: "var(--google-green-600)",
-                fontFamily: "var(--font-display)",
-              }}
-            >
+          <div style={{ display: "flex", alignItems: "baseline", gap: "4px", marginBottom: "8px" }}>
+            <span style={{ fontSize: "42px", fontWeight: 800, color: "var(--google-green-600)", fontFamily: "var(--font-display)", lineHeight: 1 }}>
               +{potentialGain}
             </span>
-            <span
-              style={{
-                fontSize: "16px",
-                color: "var(--google-green-600)",
-                fontWeight: 500,
-              }}
-            >
-              %
-            </span>
+            <span style={{ fontSize: "18px", color: "var(--google-green-600)", fontWeight: 600 }}>%</span>
           </div>
-          <p
-            style={{
-              fontSize: "12px",
-              color: "var(--text-secondary)",
-              marginTop: "6px",
-            }}
-          >
+          <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
             If recommendations are followed
-          </p>
+          </div>
         </div>
       </div>
 
@@ -415,8 +284,9 @@ export default function AIInsights() {
       <div
         className="g-card"
         style={{
-          marginBottom: "24px",
-          padding: "24px",
+          marginBottom: "28px",
+          padding: "28px 32px",
+          borderTop: "4px solid var(--bmc-orange)"
         }}
       >
         <div
@@ -424,88 +294,39 @@ export default function AIInsights() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            marginBottom: "20px",
+            marginBottom: "24px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <Target
-              size={20}
-              style={{ color: "var(--bmc-orange)" }}
-            />
-            <span
-              style={{
-                fontSize: "14px",
-                fontWeight: 700,
-                color: "var(--text-primary)",
-              }}
-            >
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ background: "var(--bmc-orange-light)", padding: "8px", borderRadius: "8px" }}>
+              <Target size={22} style={{ color: "var(--bmc-orange)" }} />
+            </div>
+            <span style={{ fontSize: "16px", fontWeight: 700, color: "var(--text-primary)" }}>
               Coverage Gap Analysis
             </span>
           </div>
-          <div style={{ display: "flex", gap: "28px" }}>
+          <div style={{ display: "flex", gap: "36px" }}>
             <div style={{ textAlign: "center" }}>
-              <span
-                style={{
-                  fontSize: "11px",
-                  color: "var(--text-secondary)",
-                  fontWeight: 600,
-                  textTransform: "uppercase",
-                }}
-              >
+              <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>
                 Current
               </span>
-              <p
-                style={{
-                  fontSize: "20px",
-                  fontWeight: 700,
-                  color: "var(--google-red-600)",
-                  fontFamily: "var(--font-display)",
-                }}
-              >
+              <p style={{ fontSize: "24px", fontWeight: 800, color: "var(--google-red-600)", fontFamily: "var(--font-display)", margin: "4px 0 0 0" }}>
                 {currentCoverage}%
               </p>
             </div>
             <div style={{ textAlign: "center" }}>
-              <span
-                style={{
-                  fontSize: "11px",
-                  color: "var(--text-secondary)",
-                  fontWeight: 600,
-                  textTransform: "uppercase",
-                }}
-              >
+              <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>
                 Target
               </span>
-              <p
-                style={{
-                  fontSize: "20px",
-                  fontWeight: 700,
-                  color: "var(--google-green-600)",
-                  fontFamily: "var(--font-display)",
-                }}
-              >
+              <p style={{ fontSize: "24px", fontWeight: 800, color: "var(--google-green-600)", fontFamily: "var(--font-display)", margin: "4px 0 0 0" }}>
                 {targetCoverage}%
               </p>
             </div>
             <div style={{ textAlign: "center" }}>
-              <span
-                style={{
-                  fontSize: "11px",
-                  color: "var(--text-secondary)",
-                  fontWeight: 600,
-                  textTransform: "uppercase",
-                }}
-              >
+              <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>
                 Achievable
               </span>
-              <p
-                style={{
-                  fontSize: "20px",
-                  fontWeight: 700,
-                  color: "var(--bmc-orange)",
-                  fontFamily: "var(--font-display)",
-                }}
-              >
+              <p style={{ fontSize: "24px", fontWeight: 800, color: "var(--bmc-orange)", fontFamily: "var(--font-display)", margin: "4px 0 0 0" }}>
                 {(currentCoverage + potentialGain).toFixed(1)}%
               </p>
             </div>
@@ -516,11 +337,12 @@ export default function AIInsights() {
         <div
           style={{
             width: "100%",
-            height: "28px",
+            height: "36px",
             background: "var(--grey-100)",
-            borderRadius: "14px",
+            borderRadius: "18px",
             position: "relative",
             overflow: "hidden",
+            boxShadow: "inset 0 2px 4px rgba(0,0,0,0.05)"
           }}
         >
           {/* Current coverage fill */}
@@ -531,9 +353,8 @@ export default function AIInsights() {
               left: 0,
               height: "100%",
               width: `${currentCoverage}%`,
-              background:
-                "linear-gradient(90deg, var(--google-red-600), var(--google-yellow-600))",
-              borderRadius: "14px 0 0 14px",
+              background: "linear-gradient(90deg, var(--google-red-600), var(--google-yellow-600))",
+              borderRadius: "18px 0 0 18px",
               transition: "width 1.5s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           />
@@ -545,9 +366,8 @@ export default function AIInsights() {
               left: `${currentCoverage}%`,
               height: "100%",
               width: `${potentialGain}%`,
-              background:
-                "repeating-linear-gradient(45deg, var(--bmc-orange) 0px, var(--bmc-orange) 4px, transparent 4px, transparent 8px)",
-              opacity: 0.35,
+              background: "repeating-linear-gradient(45deg, var(--bmc-orange) 0px, var(--bmc-orange) 6px, rgba(255,107,0,0.6) 6px, rgba(255,107,0,0.6) 12px)",
+              opacity: 0.6,
               transition: "width 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s",
             }}
           />
@@ -555,13 +375,13 @@ export default function AIInsights() {
           <div
             style={{
               position: "absolute",
-              top: "-4px",
+              top: 0,
               left: `${targetCoverage}%`,
               transform: "translateX(-50%)",
-              height: "calc(100% + 8px)",
-              width: "3px",
-              background: "var(--google-green-600)",
-              borderRadius: "2px",
+              height: "100%",
+              width: "4px",
+              background: "var(--google-green-700)",
+              zIndex: 10
             }}
           />
           {/* Labels on bar */}
@@ -571,10 +391,10 @@ export default function AIInsights() {
               top: "50%",
               left: `${currentCoverage / 2}%`,
               transform: "translate(-50%, -50%)",
-              fontSize: "11px",
+              fontSize: "13px",
               fontWeight: 700,
               color: "#fff",
-              textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+              textShadow: "0 1px 3px rgba(0,0,0,0.4)",
             }}
           >
             {currentCoverage}%
@@ -584,191 +404,152 @@ export default function AIInsights() {
           style={{
             display: "flex",
             justifyContent: "space-between",
-            marginTop: "8px",
-            fontSize: "11px",
+            marginTop: "10px",
+            fontSize: "12px",
+            fontWeight: 600,
             color: "var(--text-secondary)",
           }}
         >
           <span>0%</span>
-          <span
-            style={{
-              color: "var(--google-green-600)",
-              fontWeight: 600,
-            }}
-          >
-            Target: {targetCoverage}%
-          </span>
+          <span style={{ color: "var(--google-green-700)" }}>Target: {targetCoverage}%</span>
           <span>100%</span>
         </div>
       </div>
 
       {/* Smart Insights Cards */}
-      <h2 style={{ fontSize: "16px", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
-        <Activity size={18} style={{ color: "var(--bmc-orange)" }} />
+      <h2 style={{ fontSize: "18px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px", fontWeight: 700 }}>
+        <Activity size={22} style={{ color: "var(--bmc-orange)" }} />
         Smart Insights
       </h2>
       <div
         className="grid-cols-3"
-        style={{ marginBottom: "24px", gap: "20px" }}
+        style={{ marginBottom: "28px", gap: "24px" }}
       >
         {/* Coverage Risk */}
         <div
-          className="g-card"
+          className="g-card build-detail-metric-card"
           style={{
-            borderLeft: "4px solid var(--google-yellow-600)",
-            padding: "20px",
+            borderTop: "4px solid var(--google-yellow-600)",
+            padding: "24px",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "10px",
-            }}
-          >
-            <BarChart3 size={18} style={{ color: "var(--google-yellow-600)" }} />
-            <h3 style={{ fontSize: "14px", fontWeight: 600 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+            <div className="metric-icon-box" style={{ background: "var(--google-yellow-50)" }}>
+              <BarChart3 size={20} style={{ color: "var(--google-yellow-600)" }} />
+            </div>
+            <h3 style={{ fontSize: "15px", fontWeight: 700, margin: 0 }}>
               Coverage Risk
             </h3>
           </div>
-          <p
-            style={{
-              fontSize: "13px",
-              lineHeight: 1.6,
-              color: "var(--text-secondary)",
-            }}
-          >
-            {insights?.coverageRiskInsight ??
-              "No coverage risk data available."}
+          <p style={{ fontSize: "13.5px", lineHeight: 1.6, color: "var(--text-secondary)", margin: 0 }}>
+            {insights?.coverageRiskInsight ?? "No coverage risk data available."}
           </p>
         </div>
 
         {/* Code Quality */}
         <div
-          className="g-card"
+          className="g-card build-detail-metric-card"
           style={{
-            borderLeft: "4px solid var(--google-blue-600)",
-            padding: "20px",
+            borderTop: "4px solid var(--google-blue-600)",
+            padding: "24px",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "10px",
-            }}
-          >
-            <Bug size={18} style={{ color: "var(--google-blue-600)" }} />
-            <h3 style={{ fontSize: "14px", fontWeight: 600 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+            <div className="metric-icon-box" style={{ background: "var(--google-blue-50)" }}>
+              <Bug size={20} style={{ color: "var(--google-blue-600)" }} />
+            </div>
+            <h3 style={{ fontSize: "15px", fontWeight: 700, margin: 0 }}>
               Code Quality Alert
             </h3>
           </div>
-          <p
-            style={{
-              fontSize: "13px",
-              lineHeight: 1.6,
-              color: "var(--text-secondary)",
-            }}
-          >
-            {insights?.codeQualityInsight ??
-              "No code quality data available."}
+          <p style={{ fontSize: "13.5px", lineHeight: 1.6, color: "var(--text-secondary)", margin: 0 }}>
+            {insights?.codeQualityInsight ?? "No code quality data available."}
           </p>
         </div>
 
         {/* Security */}
         <div
-          className="g-card"
+          className="g-card build-detail-metric-card"
           style={{
-            borderLeft: "4px solid var(--google-red-600)",
-            padding: "20px",
+            borderTop: "4px solid var(--google-red-600)",
+            padding: "24px",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginBottom: "10px",
-            }}
-          >
-            <Shield size={18} style={{ color: "var(--google-red-600)" }} />
-            <h3 style={{ fontSize: "14px", fontWeight: 600 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+            <div className="metric-icon-box" style={{ background: "var(--google-red-50)" }}>
+              <Shield size={20} style={{ color: "var(--google-red-600)" }} />
+            </div>
+            <h3 style={{ fontSize: "15px", fontWeight: 700, margin: 0 }}>
               Security Concern
             </h3>
           </div>
-          <p
-            style={{
-              fontSize: "13px",
-              lineHeight: 1.6,
-              color: "var(--text-secondary)",
-            }}
-          >
-            {insights?.securityInsight ??
-              "No security insight data available."}
+          <p style={{ fontSize: "13.5px", lineHeight: 1.6, color: "var(--text-secondary)", margin: 0 }}>
+            {insights?.securityInsight ?? "No security insight data available."}
           </p>
         </div>
       </div>
 
       {/* Recommendations */}
-      <div className="g-card" style={{ marginBottom: "24px", padding: "24px" }}>
+      <div className="g-card" style={{ marginBottom: "28px", padding: "32px", borderTop: "4px solid var(--bmc-orange)" }}>
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "10px",
-            marginBottom: "20px",
+            gap: "12px",
+            marginBottom: "24px",
           }}
         >
-          <Lightbulb size={20} style={{ color: "var(--bmc-orange)" }} />
-          <h2 style={{ fontSize: "16px", fontWeight: 600 }}>
+          <div style={{ background: "var(--bmc-orange-light)", padding: "10px", borderRadius: "10px" }}>
+            <Lightbulb size={24} style={{ color: "var(--bmc-orange)" }} />
+          </div>
+          <h2 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}>
             AI Recommendations
           </h2>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {(insights?.recommendations ?? []).map((rec, index) => (
             <div
               key={index}
               style={{
                 display: "flex",
-                alignItems: "flex-start",
-                gap: "14px",
-                padding: "14px 16px",
+                alignItems: "center",
+                gap: "18px",
+                padding: "20px",
                 background: "var(--grey-50)",
-                borderRadius: "10px",
+                borderRadius: "12px",
                 border: "1px solid var(--border-color)",
                 transition: "all 0.2s ease",
                 cursor: "default",
+                boxShadow: "var(--shadow-sm)"
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor =
-                  "var(--bmc-orange)";
-                (e.currentTarget as HTMLElement).style.background =
-                  "var(--bmc-orange-light)";
+                (e.currentTarget as HTMLElement).style.borderColor = "var(--bmc-orange)";
+                (e.currentTarget as HTMLElement).style.background = "var(--bmc-orange-light)";
+                (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
+                (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-md)";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor =
-                  "var(--border-color)";
-                (e.currentTarget as HTMLElement).style.background =
-                  "var(--grey-50)";
+                (e.currentTarget as HTMLElement).style.borderColor = "var(--border-color)";
+                (e.currentTarget as HTMLElement).style.background = "var(--grey-50)";
+                (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
+                (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-sm)";
               }}
             >
               <div
                 style={{
-                  width: "28px",
-                  height: "28px",
+                  width: "36px",
+                  height: "36px",
                   borderRadius: "50%",
-                  background:
-                    "linear-gradient(135deg, var(--bmc-orange), var(--bmc-orange-hover))",
+                  background: "linear-gradient(135deg, var(--bmc-orange), var(--bmc-orange-hover))",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   flexShrink: 0,
                   color: "#fff",
-                  fontSize: "12px",
-                  fontWeight: 700,
+                  fontSize: "14px",
+                  fontWeight: 800,
+                  boxShadow: "0 4px 10px rgba(255,107,0,0.3)"
                 }}
               >
                 {index + 1}
@@ -776,21 +557,21 @@ export default function AIInsights() {
               <div style={{ flex: 1 }}>
                 <p
                   style={{
-                    fontSize: "13.5px",
-                    lineHeight: 1.55,
+                    fontSize: "14.5px",
+                    lineHeight: 1.6,
                     color: "var(--text-primary)",
                     fontWeight: 500,
+                    margin: 0
                   }}
                 >
                   {rec}
                 </p>
               </div>
               <ChevronRight
-                size={16}
+                size={20}
                 style={{
                   color: "var(--text-secondary)",
                   flexShrink: 0,
-                  marginTop: "3px",
                 }}
               />
             </div>
@@ -802,26 +583,27 @@ export default function AIInsights() {
       <div
         className="g-card"
         style={{
-          background: "var(--bmc-orange-light)",
-          border: "1px dashed var(--bmc-orange)",
+          background: "linear-gradient(135deg, var(--bmc-orange-light), rgba(255, 107, 0, 0.05))",
+          border: "2px dashed var(--bmc-orange)",
           textAlign: "center",
-          padding: "32px 24px",
+          padding: "40px 32px",
         }}
       >
         <Zap
-          size={28}
+          size={36}
           style={{
             color: "var(--bmc-orange)",
-            margin: "0 auto 12px",
+            margin: "0 auto 16px",
             display: "block",
+            filter: "drop-shadow(0 4px 8px rgba(255,107,0,0.3))"
           }}
         />
         <h2
           style={{
             color: "var(--bmc-orange-hover)",
-            fontSize: "18px",
-            fontWeight: 600,
-            marginBottom: "8px",
+            fontSize: "20px",
+            fontWeight: 800,
+            marginBottom: "12px",
           }}
         >
           AI Reasoning Engine Under Development
@@ -830,9 +612,10 @@ export default function AIInsights() {
         <p
           style={{
             color: "var(--text-secondary)",
-            fontSize: "13.5px",
+            fontSize: "14.5px",
             maxWidth: "600px",
-            margin: "0 auto 16px",
+            margin: "0 auto 24px",
+            lineHeight: 1.6
           }}
         >
           Upcoming features integrate large language models directly into the
@@ -843,17 +626,17 @@ export default function AIInsights() {
           style={{
             display: "flex",
             justifyContent: "center",
-            gap: "16px 32px",
+            gap: "24px",
             flexWrap: "wrap",
-            fontSize: "12.5px",
-            fontWeight: 600,
+            fontSize: "13.5px",
+            fontWeight: 700,
             color: "var(--bmc-orange)",
           }}
         >
-          <span>✦ LLM Test Generation</span>
-          <span>✦ Auto-Pruning Engine</span>
-          <span>✦ Predictive Path Analytics</span>
-          <span>✦ Automated Vulnerability Fixes</span>
+          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><Sparkles size={14}/> LLM Test Generation</span>
+          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><Sparkles size={14}/> Auto-Pruning Engine</span>
+          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><Sparkles size={14}/> Predictive Path Analytics</span>
+          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><Sparkles size={14}/> Automated Vulnerability Fixes</span>
         </div>
       </div>
     </MainLayout>

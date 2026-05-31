@@ -19,6 +19,18 @@ import {
   X
 } from "lucide-react";
 
+// Priority: High (76–100%) → Medium (51–75%) → Low (26–50%) → Critical (0–25%)
+const selectBestModule = (modules: any[]): any | null => {
+  if (modules.length === 0) return null;
+  const high = modules.find((m) => (m.lineCoverage ?? 0) > 75);
+  if (high) return high;
+  const medium = modules.find((m) => (m.lineCoverage ?? 0) > 50);
+  if (medium) return medium;
+  const low = modules.find((m) => (m.lineCoverage ?? 0) > 25);
+  if (low) return low;
+  return modules[0]; // fallback to Critical
+};
+
 // Coverage band definitions
 const COVERAGE_BANDS = [
   { key: "critical", label: "Critical", range: "0–25%", min: 0, max: 25, color: "var(--google-red-600)", bgColor: "var(--google-red-50)", borderColor: "var(--google-red-100)" },
@@ -67,8 +79,9 @@ export default function Modules() {
         });
         setModules(uniqueModules);
         if (uniqueModules.length > 0) {
-          // Auto-select the first module by default
-          setSelectedModuleId(uniqueModules[0].id);
+          // Auto-select using priority: High → Medium → Low → Critical
+          const best = selectBestModule(uniqueModules);
+          setSelectedModuleId(best ? best.id : null);
         }
       })
       .catch(console.error);
@@ -115,7 +128,9 @@ export default function Modules() {
     });
     
     if (newFiltered.length > 0) {
-      setSelectedModuleId(newFiltered[0].id);
+      // Auto-select using priority: High → Medium → Low → Critical
+      const best = selectBestModule(newFiltered);
+      setSelectedModuleId(best ? best.id : null);
     } else {
       setSelectedModuleId(null);
     }

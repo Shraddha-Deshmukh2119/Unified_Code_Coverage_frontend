@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import MainLayout from "../layouts/MainLayout";
 import MetricCard from "../components/cards/MetricCard";
 import SeverityBadge from "../components/common/SeverityBadge";
@@ -31,6 +31,9 @@ export default function CodeHealth() {
   const [selectedIssueSource, setSelectedIssueSource] = useState<any>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [shouldScrollToCode, setShouldScrollToCode] = useState(false);
+
+  // Ref for the code viewer scrollable container
+  const codeViewerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     getSonarSummary()
@@ -272,6 +275,31 @@ export default function CodeHealth() {
       }, 100);
     }
   }, [selectedIssueDetails, shouldScrollToCode]);
+  // Scroll the code viewer to center the highlighted line
+  // Works for all file sizes including >300, >500, >1000 lines
+  useEffect(() => {
+    if (!selectedIssueSource || !codeViewerRef.current) return;
+    const container = codeViewerRef.current;
+    const timer = setTimeout(() => {
+      const highlighted = container.querySelector(
+        ".code-line.highlighted"
+      ) as HTMLElement | null;
+      if (!highlighted) return;
+      // Use getBoundingClientRect for reliable offset calculation
+      // regardless of CSS positioning context
+      const containerRect = container.getBoundingClientRect();
+      const highlightedRect = highlighted.getBoundingClientRect();
+      const currentScrollTop = container.scrollTop;
+      // Position of highlighted line relative to container top
+      const relativeTop =
+        highlightedRect.top - containerRect.top + currentScrollTop;
+      // Center the highlighted line vertically in the container
+      const centerOffset =
+        relativeTop - container.clientHeight / 2 + highlighted.clientHeight / 2;
+      container.scrollTop = Math.max(0, centerOffset);
+    }, 80); // Wait for DOM to fully render
+    return () => clearTimeout(timer);
+  }, [selectedIssueSource]);
 
   if (!summary) {
     return <MainLayout>Loading...</MainLayout>;
@@ -792,11 +820,12 @@ export default function CodeHealth() {
                     </h4>
 
                     {selectedIssueSource ? (
-                      <div 
-                        className="code-viewer-container" 
-                        style={{ 
-                          maxHeight: "400px", 
-                          overflowY: "auto", 
+                      <div
+                        ref={codeViewerRef}
+                        className="code-viewer-container"
+                        style={{
+                          maxHeight: "400px",
+                          overflowY: "auto",
                           fontSize: "12.5px",
                           borderRadius: "6px"
                         }}
