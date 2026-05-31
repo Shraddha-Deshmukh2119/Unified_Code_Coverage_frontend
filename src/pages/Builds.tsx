@@ -69,7 +69,9 @@ export default function Builds() {
 
   const filteredBuilds = builds.filter((build) => {
     if (build.buildId == null) return false;
-    const statusMatch = statusFilter === "ALL" || build.status === statusFilter;
+    const isSuccess = build.status === "SUCCESS" || build.status === "PASSED";
+    const statusCategory = isSuccess ? "SUCCESS" : "FAILED";
+    const statusMatch = statusFilter === "ALL" || statusCategory === statusFilter;
     const searchMatch =
       !buildSearch || build.buildId.toString().includes(buildSearch.trim());
     return statusMatch && searchMatch;
@@ -1058,7 +1060,7 @@ export default function Builds() {
                             color: isSuccess ? "var(--google-green-600)" : "var(--google-red-600)",
                             textTransform: "uppercase"
                           }}>
-                            {b.status}
+                            {isSuccess ? "SUCCESS" : "FAILED"}
                           </span>
                         </div>
                         {b.branch && (
@@ -1097,8 +1099,6 @@ export default function Builds() {
               >
                 <option value="ALL">All Status</option>
                 <option value="SUCCESS">Success</option>
-                <option value="PASSED">Passed</option>
-                <option value="FAILURE">Failure</option>
                 <option value="FAILED">Failed</option>
               </select>
             </div>
