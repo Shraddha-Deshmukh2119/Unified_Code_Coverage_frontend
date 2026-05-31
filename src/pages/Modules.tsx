@@ -430,12 +430,14 @@ export default function Modules() {
               >
                 <div>
                   <div className="page-subtitle" style={{ color: "var(--bmc-orange)" }}>Active Module Selection</div>
-                  <h2 
-                    title={selectedModule.modulePath || selectedModule.path || selectedModule.moduleName}
-                    style={{ fontSize: "20px", fontWeight: 700, margin: "2px 0 6px 0", wordBreak: "break-all", fontFamily: "var(--font-display)", cursor: "help" }}
-                  >
-                    {selectedModule.moduleName}
-                  </h2>
+                  <div className="ui-tooltip-container">
+                    <h2 style={{ fontSize: "20px", fontWeight: 700, margin: "2px 0 6px 0", wordBreak: "break-all", fontFamily: "var(--font-display)", cursor: "pointer" }}>
+                      {selectedModule.moduleName}
+                    </h2>
+                    <span className="ui-tooltip">
+                      {selectedModule.modulePath || selectedModule.path || selectedModule.moduleName}
+                    </span>
+                  </div>
                   <div style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "8px" }}>
                     <span className="g-badge g-badge-grey" style={{ fontSize: "11px" }}>{selectedModule.language}</span>
                     <RiskBadge risk={selectedModule.riskLevel} />

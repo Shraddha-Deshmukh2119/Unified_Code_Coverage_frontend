@@ -980,6 +980,41 @@ a:hover {
   }
 }
 
+/* Generic UI Tooltip */
+.ui-tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+.ui-tooltip-container .ui-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 0;
+  background: var(--grey-900);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+.ui-tooltip-container .ui-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 16px;
+  border: 5px solid transparent;
+  border-top-color: var(--grey-900);
+}
+.ui-tooltip-container:hover .ui-tooltip {
+  display: block;
+  animation: fadeIn 0.15s ease;
+}
+
 @media (max-width: 480px) {
   .grid-cols-4 {
     grid-template-columns: 1fr;
