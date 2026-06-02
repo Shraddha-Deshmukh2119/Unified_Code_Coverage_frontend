@@ -7,6 +7,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  Label,
 } from "recharts";
 
 export default function QualityScoreTrendChart({
@@ -48,28 +49,19 @@ export default function QualityScoreTrendChart({
       style={{
         width: "100%",
         height: 400,
-
-        background: "#FFFFFF",
-
+        background: "var(--bg-card)",
         padding: "20px",
-
         borderRadius: "12px",
-
         marginTop: "25px",
-
-        boxShadow:
-          "0 2px 8px rgba(0,0,0,0.08)",
+        boxShadow: "var(--shadow-sm)",
       }}
     >
       <h3
         style={{
           marginBottom: 20,
-
           fontSize: 18,
-
           fontWeight: 600,
-
-          color: "#111827",
+          color: "var(--text-primary)",
         }}
       >
         Quality Trend Analysis
@@ -81,35 +73,62 @@ export default function QualityScoreTrendChart({
       >
         <LineChart
           data={formattedData}
+          margin={{
+            top: 10,
+            right: 20,
+            left: 10,
+            bottom: 30,
+          }}
         >
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="#E5E7EB"
+            stroke="var(--grey-200)"
           />
 
           <XAxis
             dataKey="chartId"
-            stroke="#6B7280"
-          />
+            stroke="var(--text-secondary)"
+            fontSize={12}
+            tickLine={false}
+          >
+            <Label
+              value="Build No."
+              position="bottom"
+              offset={10}
+              style={{
+                fontSize: "12px",
+                fontWeight: 600,
+                fill: "var(--text-secondary)",
+              }}
+            />
+          </XAxis>
 
           <YAxis
             domain={[0, 100]}
-            stroke="#6B7280"
-          />
+            stroke="var(--text-secondary)"
+            fontSize={12}
+            tickLine={false}
+          >
+            <Label
+              value="Coverage %"
+              angle={-90}
+              position="insideLeft"
+              offset={0}
+              style={{
+                fontSize: "12px",
+                fontWeight: 600,
+                fill: "var(--text-secondary)",
+                textAnchor: "middle",
+              }}
+            />
+          </YAxis>
 
           <Tooltip
             contentStyle={{
-              background:
-                "#FFFFFF",
-
-              border:
-                "1px solid #E5E7EB",
-
-              borderRadius:
-                "10px",
-
-              color:
-                "#111827",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border-color)",
+              borderRadius: "10px",
+              color: "var(--text-primary)",
             }}
 
             formatter={(
@@ -160,7 +179,11 @@ export default function QualityScoreTrendChart({
             }}
           />
 
-          <Legend />
+          <Legend
+            wrapperStyle={{
+              paddingTop: "20px",
+            }}
+          />
 
           {/* Coverage Line */}
 

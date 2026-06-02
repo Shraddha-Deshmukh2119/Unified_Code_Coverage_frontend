@@ -574,12 +574,15 @@ export default function CodeHealth() {
                             }}
                           >
                             <div
-                              title={issue.file}
-                              style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                              className="ui-tooltip-container"
+                              style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                             >
                               {issue.file.includes("/")
                                 ? issue.file.substring(issue.file.lastIndexOf("/") + 1)
                                 : issue.file}
+                              <span className="ui-tooltip" style={{ zIndex: 1000 }}>
+                                {issue.file}
+                              </span>
                             </div>
                           </td>
 

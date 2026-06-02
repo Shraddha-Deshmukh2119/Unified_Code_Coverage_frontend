@@ -31,12 +31,12 @@ const selectBestModule = (modules: any[]): any | null => {
   return modules[0]; // fallback to Critical
 };
 
-// Coverage band definitions
+// Coverage band definitions — ordered: High → Medium → Low → Critical
 const COVERAGE_BANDS = [
-  { key: "critical", label: "Critical", range: "0–25%", min: 0, max: 25, color: "var(--google-red-600)", bgColor: "var(--google-red-50)", borderColor: "var(--google-red-100)" },
-  { key: "low", label: "Low", range: "26–50%", min: 26, max: 50, color: "var(--google-yellow-600)", bgColor: "var(--google-yellow-50)", borderColor: "var(--google-yellow-100)" },
-  { key: "medium", label: "Medium", range: "51–75%", min: 51, max: 75, color: "var(--google-blue-600)", bgColor: "var(--google-blue-50)", borderColor: "var(--google-blue-100)" },
-  { key: "high", label: "High", range: "76–100%", min: 76, max: 100, color: "var(--google-green-600)", bgColor: "var(--google-green-50)", borderColor: "var(--google-green-100)" },
+  { key: "high", label: "High Coverage", range: "76–100%", min: 76, max: 100, color: "var(--google-green-600)", bgColor: "var(--google-green-50)", borderColor: "var(--google-green-100)" },
+  { key: "medium", label: "Medium Coverage", range: "51–75%", min: 51, max: 75, color: "var(--google-blue-600)", bgColor: "var(--google-blue-50)", borderColor: "var(--google-blue-100)" },
+  { key: "low", label: "Low Coverage", range: "26–50%", min: 26, max: 50, color: "var(--google-yellow-600)", bgColor: "var(--google-yellow-50)", borderColor: "var(--google-yellow-100)" },
+  { key: "critical", label: "Critical Coverage", range: "0–25%", min: 0, max: 25, color: "var(--google-red-600)", bgColor: "var(--google-red-50)", borderColor: "var(--google-red-100)" },
 ];
 
 const BAND_ICONS: Record<string, any> = {
@@ -323,6 +323,22 @@ export default function Modules() {
                 {band.label}: {groupedByBand[band.key].length}
               </span>
             ))}
+          </div>
+
+          {/* Section Title */}
+          <div style={{
+            fontSize: "13px",
+            fontWeight: 700,
+            color: "var(--text-secondary)",
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            marginBottom: "10px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px"
+          }}>
+            <BarChart3 size={14} style={{ color: "var(--bmc-orange)" }} />
+            Coverage-Wise Module Classification
           </div>
 
           {/* Coverage band accordions */}

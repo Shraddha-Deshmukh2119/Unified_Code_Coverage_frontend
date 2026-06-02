@@ -6,6 +6,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  Label,
 } from "recharts";
 
 interface Props {
@@ -19,8 +20,6 @@ export default function CoverageTrendChart({ data }: Props) {
     buildId: index + 1,
     coverage: Number(item.coverage),
   }));
-
-  console.log("Coverage Graph Data =>", formattedData);
 
   return (
     <div
@@ -47,8 +46,8 @@ export default function CoverageTrendChart({ data }: Props) {
           margin={{
             top: 10,
             right: 10,
-            left: -20,
-            bottom: 0,
+            left: 10,
+            bottom: 30,
           }}
         >
           <CartesianGrid
@@ -58,21 +57,44 @@ export default function CoverageTrendChart({ data }: Props) {
 
           <XAxis
             dataKey="buildId"
-            stroke="var(--grey-700)"
+            stroke="var(--text-secondary)"
             fontSize={12}
             tickLine={false}
             axisLine={false}
             dy={8}
-          />
+          >
+            <Label
+              value="Build No."
+              position="bottom"
+              offset={10}
+              style={{
+                fontSize: "12px",
+                fontWeight: 600,
+                fill: "var(--text-secondary)",
+              }}
+            />
+          </XAxis>
 
           <YAxis
-            stroke="var(--grey-700)"
+            stroke="var(--text-secondary)"
             fontSize={12}
             tickLine={false}
             axisLine={false}
-            dx={-8}
             domain={[0, 100]}
-          />
+          >
+            <Label
+              value="Coverage %"
+              angle={-90}
+              position="insideLeft"
+              offset={0}
+              style={{
+                fontSize: "12px",
+                fontWeight: 600,
+                fill: "var(--text-secondary)",
+                textAnchor: "middle",
+              }}
+            />
+          </YAxis>
 
           <Tooltip
             content={({ active, payload, label }) => {
@@ -87,10 +109,10 @@ export default function CoverageTrendChart({ data }: Props) {
               return (
                 <div
                   style={{
-                    background: "var(--grey-900)",
+                    background: "#1f2937",
                     border: "none",
                     borderRadius: "4px",
-                    color: "white",
+                    color: "#f9fafb",
                     fontSize: "12px",
                     padding: "10px",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
@@ -99,7 +121,7 @@ export default function CoverageTrendChart({ data }: Props) {
                   <div
                     style={{
                       marginBottom: "6px",
-                      color: "#aaa",
+                      color: "#9ca3af",
                     }}
                   >
                     Build #{label}

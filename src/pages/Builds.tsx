@@ -551,7 +551,7 @@ export default function Builds() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gridTemplateColumns: "repeat(4, 1fr)",
               gap: "16px",
             }}
           >
@@ -765,52 +765,6 @@ export default function Builds() {
               <StatusBadge status={selectedBuild.status} />
             </div>
 
-            {/* Duration */}
-            <div
-              className="g-card build-detail-metric-card"
-              style={{
-                padding: "20px",
-                borderTop: "3px solid var(--google-blue-600)",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  marginBottom: "18px",
-                }}
-              >
-                <div
-                  className="metric-icon-box"
-                  style={{ background: "var(--google-blue-50)" }}
-                >
-                  <Timer
-                    size={17}
-                    style={{ color: "var(--google-blue-600)" }}
-                  />
-                </div>
-                <span className="metric-card-label">Duration</span>
-              </div>
-              <div
-                style={{
-                  fontSize: "36px",
-                  fontWeight: 800,
-                  color: "var(--text-primary)",
-                  fontFamily: "var(--font-display)",
-                  lineHeight: 1,
-                  marginBottom: "10px",
-                }}
-              >
-                {durationMs ? formatDuration(durationMs) : "—"}
-              </div>
-              <div
-                style={{ fontSize: "12px", color: "var(--text-secondary)" }}
-              >
-                Pipeline execution time
-              </div>
-            </div>
-
             {/* Branch */}
             <div
               className="g-card build-detail-metric-card"
@@ -855,77 +809,6 @@ export default function Builds() {
                 style={{ fontSize: "12px", color: "var(--text-secondary)" }}
               >
                 {selectedBuild.repositoryName ?? "repository"}
-              </div>
-            </div>
-
-            {/* Quality Gate */}
-            <div
-              className="g-card build-detail-metric-card"
-              style={{
-                padding: "20px",
-                borderTop: `3px solid ${
-                  qgStatus === "PASSED" || qgStatus === "SUCCESS" || qgStatus === "OK"
-                    ? "var(--google-green-600)"
-                    : qgStatus
-                    ? "var(--google-red-600)"
-                    : "var(--grey-300)"
-                }`,
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  marginBottom: "18px",
-                }}
-              >
-                <div
-                  className="metric-icon-box"
-                  style={{
-                    background:
-                      qgStatus === "PASSED" || qgStatus === "SUCCESS" || qgStatus === "OK"
-                        ? "var(--google-green-50)"
-                        : qgStatus
-                        ? "var(--google-red-50)"
-                        : "var(--grey-100)",
-                  }}
-                >
-                  <Shield
-                    size={17}
-                    style={{
-                      color:
-                        qgStatus === "PASSED" || qgStatus === "SUCCESS" || qgStatus === "OK"
-                          ? "var(--google-green-600)"
-                          : qgStatus
-                          ? "var(--google-red-600)"
-                          : "var(--grey-400)",
-                    }}
-                  />
-                </div>
-                <span className="metric-card-label">Quality Gate</span>
-              </div>
-              <div
-                style={{
-                  fontSize: "30px",
-                  fontWeight: 800,
-                  color:
-                    qgStatus === "PASSED" || qgStatus === "SUCCESS" || qgStatus === "OK"
-                      ? "var(--google-green-600)"
-                      : qgStatus
-                      ? "var(--google-red-600)"
-                      : "var(--text-secondary)",
-                  fontFamily: "var(--font-display)",
-                  lineHeight: 1,
-                  marginBottom: "10px",
-                }}
-              >
-                {qgStatus ?? "N/A"}
-              </div>
-              <div
-                style={{ fontSize: "12px", color: "var(--text-secondary)" }}
-              >
-                Sonar quality threshold result
               </div>
             </div>
           </div>
