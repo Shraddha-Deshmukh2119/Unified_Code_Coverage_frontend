@@ -62,11 +62,12 @@ export default function CoverageTrendChart({ data }: Props) {
             tickLine={false}
             axisLine={false}
             dy={8}
+            height={50}
           >
             <Label
               value="Build No."
-              position="bottom"
-              offset={10}
+              position="insideBottom"
+              offset={0}
               style={{
                 fontSize: "12px",
                 fontWeight: 600,
@@ -81,12 +82,13 @@ export default function CoverageTrendChart({ data }: Props) {
             tickLine={false}
             axisLine={false}
             domain={[0, 100]}
+            width={60}
           >
             <Label
               value="Coverage %"
               angle={-90}
               position="insideLeft"
-              offset={0}
+              offset={-5}
               style={{
                 fontSize: "12px",
                 fontWeight: 600,

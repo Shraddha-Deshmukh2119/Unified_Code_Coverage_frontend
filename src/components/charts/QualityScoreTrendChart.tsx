@@ -90,11 +90,12 @@ export default function QualityScoreTrendChart({
             stroke="var(--text-secondary)"
             fontSize={12}
             tickLine={false}
+            height={50}
           >
             <Label
               value="Build No."
-              position="bottom"
-              offset={10}
+              position="insideBottom"
+              offset={0}
               style={{
                 fontSize: "12px",
                 fontWeight: 600,
@@ -108,12 +109,13 @@ export default function QualityScoreTrendChart({
             stroke="var(--text-secondary)"
             fontSize={12}
             tickLine={false}
+            width={60}
           >
             <Label
               value="Coverage %"
               angle={-90}
               position="insideLeft"
-              offset={0}
+              offset={-5}
               style={{
                 fontSize: "12px",
                 fontWeight: 600,

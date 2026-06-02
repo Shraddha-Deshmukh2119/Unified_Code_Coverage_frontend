@@ -580,7 +580,7 @@ export default function CodeHealth() {
                               {issue.file.includes("/")
                                 ? issue.file.substring(issue.file.lastIndexOf("/") + 1)
                                 : issue.file}
-                              <span className="ui-tooltip" style={{ zIndex: 1000 }}>
+                              <span className="ui-tooltip ui-tooltip-bottom" style={{ zIndex: 1000 }}>
                                 {issue.file}
                               </span>
                             </div>
@@ -741,9 +741,14 @@ export default function CodeHealth() {
                     {/* Key properties grid */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "2px", background: "var(--grey-50)", padding: "12px 16px", borderRadius: "6px", fontSize: "12.5px", border: "1px solid var(--border-color)" }}>
                       <span style={{ color: "var(--text-secondary)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.04em" }}>File</span>
-                      <strong style={{ fontFamily: "var(--font-mono)", fontSize: "12px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }} title={selectedIssueDetails.file}>
-                        {selectedIssueDetails.file.includes("/") ? selectedIssueDetails.file.substring(selectedIssueDetails.file.lastIndexOf("/") + 1) : selectedIssueDetails.file}
-                      </strong>
+                      <div className="ui-tooltip-container" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <strong style={{ fontFamily: "var(--font-mono)", fontSize: "12px" }}>
+                          {selectedIssueDetails.file.includes("/") ? selectedIssueDetails.file.substring(selectedIssueDetails.file.lastIndexOf("/") + 1) : selectedIssueDetails.file}
+                        </strong>
+                        <span className="ui-tooltip ui-tooltip-bottom" style={{ zIndex: 1000, whiteSpace: "normal", wordBreak: "break-all", minWidth: "200px" }}>
+                          {selectedIssueDetails.file}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Insights Table: ruleDescription, recommendation, impact */}
