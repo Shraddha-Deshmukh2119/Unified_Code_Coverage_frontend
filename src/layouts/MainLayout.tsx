@@ -50,7 +50,7 @@ function MainLayout({ children }: Props) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            https://github.com/Shraddha-Deshmukh2119/project-repos.git
+            Repository
             <ExternalLink size={10} style={{ marginLeft: "4px", verticalAlign: "middle" }} />
           </a>
           <span className="repo-separator">•</span>
