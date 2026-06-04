@@ -46,11 +46,11 @@ function MainLayout({ children }: Props) {
           </span>
           <span className="repo-separator">•</span>
           <a
-            href={latestBuild.repositoryUrl || "https://github.com"}
+            href="https://github.com/Shraddha-Deshmukh2119/project-repos.git"
             target="_blank"
             rel="noopener noreferrer"
           >
-            {latestBuild.repositoryUrl || "Repository URL"}
+            https://github.com/Shraddha-Deshmukh2119/project-repos.git
             <ExternalLink size={10} style={{ marginLeft: "4px", verticalAlign: "middle" }} />
           </a>
           <span className="repo-separator">•</span>

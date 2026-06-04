@@ -1057,8 +1057,6 @@ export default function Builds() {
                       <th style={{ width: "36px" }}></th>
                       <th>Build</th>
                       <th>Status</th>
-                      <th>Quality Gate</th>
-                      <th>Duration</th>
                       <th>Repository</th>
                       <th>Branch</th>
                       <th>Coverage</th>
@@ -1113,27 +1111,6 @@ export default function Builds() {
                           {/* Status badge */}
                           <td>
                             <StatusBadge status={build.status} />
-                          </td>
-
-                          {/* Quality Gate */}
-                          <td>
-                            <span style={{ 
-                               fontSize: "12px", 
-                               fontWeight: 600, 
-                               color: (build.qualityGateStatus ?? build.quality_gate_status ?? build.qualityGate?.status ?? build.qualityGate ?? build.sonarQualityGate ?? build.sonar_quality_gate ?? build.gateStatus) === 'PASSED' ? 'var(--google-green-600)' : 'var(--text-secondary)' 
-                            }}>
-                               {build.qualityGateStatus ?? build.quality_gate_status ?? (typeof build.qualityGate === 'object' ? build.qualityGate?.status : build.qualityGate) ?? build.sonarQualityGate ?? build.sonar_quality_gate ?? build.gateStatus ?? "—"}
-                            </span>
-                          </td>
-
-                          {/* Duration */}
-                          <td>
-                            <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 500 }}>
-                               {(() => {
-                                  const dur = build.buildDuration ?? build.duration ?? build.executionTime ?? build.execution_time ?? build.durationMs ?? build.duration_ms ?? build.timeTaken ?? build.time_taken;
-                                  return dur ? formatDuration(dur) : "—";
-                               })()}
-                            </span>
                           </td>
 
                           {/* Repo */}

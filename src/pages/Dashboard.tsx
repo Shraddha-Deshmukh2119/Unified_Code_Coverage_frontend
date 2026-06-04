@@ -26,7 +26,8 @@ export default function Dashboard() {
 
     getCoverageTrend().then((res) => {
       const cleaned = res.data.filter((item: any) => item.buildId !== null);
-      setTrend(cleaned);
+      // Reverse so oldest build is first
+      setTrend(cleaned.reverse());
     });
 
     getLanguageDistribution().then((res) => setLanguages(res.data));
@@ -117,7 +118,7 @@ export default function Dashboard() {
           <div 
             style={{ 
               display: "grid",
-              gridTemplateColumns: "repeat(5, 1fr)",
+              gridTemplateColumns: "repeat(3, 1fr)",
               gap: "20px"
             }}
           >
@@ -147,26 +148,6 @@ export default function Dashboard() {
               subtitle="Click to view code smells"
               valueColor="var(--google-blue-600)"
               onClick={() => navigate("/code-health?filter=CODE_SMELL")}
-            />
-
-            <MetricCard
-              title="Security Rating"
-              value={sonar.securityRating}
-              subtitle="Security compliance"
-              trend={sonar.securityRating === "A" ? "PASS" : "FAIL"}
-              trendType={sonar.securityRating === "A" ? "up" : "down"}
-              valueColor={sonar.securityRating === "A" ? "var(--google-green-600)" : "var(--google-red-600)"}
-              onClick={() => navigate("/code-health")}
-            />
-
-            <MetricCard
-              title="Maintainability"
-              value={sonar.maintainabilityRating}
-              subtitle="Technical debt ratio"
-              trend={sonar.maintainabilityRating === "A" ? "EXCELLENT" : "WARNING"}
-              trendType={sonar.maintainabilityRating === "A" ? "up" : "neutral"}
-              valueColor={sonar.maintainabilityRating === "A" ? "var(--google-green-600)" : "var(--google-yellow-600)"}
-              onClick={() => navigate("/code-health")}
             />
           </div>
         </div>

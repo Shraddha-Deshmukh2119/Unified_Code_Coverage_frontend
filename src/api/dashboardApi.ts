@@ -38,18 +38,18 @@ export const getSonarIssueDetails = (
     `/api/dashboard/sonar-issues/${issueKey}`
   );
 
-  export const getSonarIssues = () =>
+export const getSonarIssues = () =>
   api.get("/api/dashboard/sonar-issues");
 
-  export const getIssueSourceCode = (
+export const getIssueSourceCode = (
   issueKey: string
 ) =>
   api.get(
     `/api/dashboard/sonar-issues/${issueKey}/source`
   );
 
-export const getAIMetrics = () =>
-  api.get("/api/dashboard/ai-metrics");
-
-export const getAIInsights = () =>
+export const getAiMetricsData = () =>
   api.get("/api/dashboard/ai-insights");
+
+export const getComplexityAnalysis = () =>
+  api.get("/api/complexity/results");

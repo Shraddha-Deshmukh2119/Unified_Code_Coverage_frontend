@@ -310,13 +310,13 @@ export default function CodeHealth() {
       <div className="page-subtitle">SonarQube Overview</div>
       <h1 className="page-title">Code Health Center</h1>
 
-      {/* Summary Cards */}
+      {/* Consolidated Metrics Grid */}
       <div 
         style={{ 
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
           gap: "20px",
-          marginBottom: "24px"
+          marginBottom: "32px"
         }}
       >
         <MetricCard
@@ -350,46 +350,6 @@ export default function CodeHealth() {
             setTypeFilter("CODE_SMELL");
             document.getElementById("issue-explorer")?.scrollIntoView({ behavior: "smooth" });
           }}
-        />
-
-        <MetricCard 
-          title="Security Hotspots" 
-          value={summary.securityHotspots} 
-          subtitle="Unreviewed security risks"
-          valueColor="var(--google-yellow-700)"
-        />
-      </div>
-
-      {/* Primary KPI Grid */}
-      <div 
-        style={{ 
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: "20px",
-          marginBottom: "32px"
-        }}
-      >
-        <MetricCard 
-          title="Security Rating" 
-          value={summary.securityRating} 
-          subtitle="Static analysis security rating"
-          trend={summary.securityRating === "A" ? "EXCELLENT" : "RISKY"}
-          trendType={summary.securityRating === "A" ? "up" : "down"}
-          valueColor={summary.securityRating === "A" ? "var(--google-green-600)" : "var(--google-red-600)"}
-        />
-
-        <MetricCard 
-          title="Reliability Rating" 
-          value={summary.reliabilityRating} 
-          subtitle="Software failure probability"
-          valueColor={summary.reliabilityRating === "A" ? "var(--google-green-600)" : "var(--google-red-600)"}
-        />
-
-        <MetricCard 
-          title="Maintainability Rating" 
-          value={summary.maintainabilityRating} 
-          subtitle="Software complexity index"
-          valueColor={summary.maintainabilityRating === "A" ? "var(--google-green-600)" : "var(--google-yellow-600)"}
         />
 
         <MetricCard
