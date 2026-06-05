@@ -295,9 +295,9 @@ export default function AIInsights() {
         </h2>
       </div>
 
-      <div style={{ display: "flex", gap: "24px", height: "450px" }}>
+      <div style={{ display: "flex", gap: "24px", alignItems: "flex-start" }}>
         {/* Left Side: Master List with Search & Filter */}
-        <div style={{ flex: "0 0 40%", display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div style={{ flex: "0 0 40%", display: "flex", flexDirection: "column", gap: "16px", height: "550px", position: "sticky", top: "20px" }}>
 
           <div style={{ display: "flex", gap: "12px" }}>
             <div style={{ flex: 1, position: "relative" }}>
@@ -429,7 +429,7 @@ export default function AIInsights() {
         </div>
 
         {/* Right Side: Detail View */}
-        <div style={{ flex: "1", display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: "1", display: "flex", flexDirection: "column", minHeight: "550px" }}>
           {selectedModule ? (
             <div className="g-card" style={{ padding: "32px", flex: 1, borderTop: "4px solid var(--google-blue-600)" }}>
               <div style={{ marginBottom: "24px", paddingBottom: "20px", borderBottom: "1px solid var(--border-color)" }}>
