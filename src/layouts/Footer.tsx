@@ -21,7 +21,7 @@ export default function Footer() {
       </div>
       <div className="g-footer-links" style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
         <a 
-          href={latestBuild?.repositoryUrl || "https://github.com"} 
+          href={latestBuild?.repositoryUrl || "https://github.com/Shraddha-Deshmukh2119/project-repos.git"} 
           target="_blank" 
           rel="noopener noreferrer"
           className="g-footer-link"

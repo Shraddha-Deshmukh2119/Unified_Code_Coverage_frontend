@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import MainLayout from "../layouts/MainLayout";
 import MetricCard from "../components/cards/MetricCard";
 import SeverityBadge from "../components/common/SeverityBadge";
@@ -6,11 +6,14 @@ import IssueTypeBadge from "../components/common/IssueTypeBadge";
 import IssueDistributionChart from "../components/charts/IssueDistributionChart";
 import SeverityChart from "../components/charts/SeverityChart";
 
+import type { RiskRatingResponse } from "../types/riskRating";
+
 import {
   getSonarSummary,
   getSonarIssues,
   getSonarIssueDetails,
   getIssueSourceCode,
+  getRiskRating,
 } from "../api/dashboardApi";
 import { 
   Terminal, 
@@ -24,6 +27,7 @@ export default function CodeHealth() {
   const [issues, setIssues] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL");
+  const [riskRating, setRiskRating] = useState<RiskRatingResponse | null>(null);
 
   // Split-pane active issue states
   const [selectedIssueKey, setSelectedIssueKey] = useState<string | null>(null);
@@ -38,6 +42,10 @@ export default function CodeHealth() {
   useEffect(() => {
     getSonarSummary()
       .then((res) => setSummary(res.data))
+      .catch(console.error);
+
+    getRiskRating()
+      .then((res) => setRiskRating(res.data))
       .catch(console.error);
 
     getSonarIssues()
@@ -114,7 +122,8 @@ export default function CodeHealth() {
     }
   }, []);
 
-  // Use all issues without deduplication to display full counts
+  // Compute risk rating from all issues
+  // const risk = useMemo(() => calculateRiskRating(issues), [issues]);
 
 
   // Automatically keep selected issue in sync with list filter updates
@@ -354,11 +363,24 @@ export default function CodeHealth() {
 
         <MetricCard
           title="Risk Rating"
-          value={summary.securityRating === "D" ? "HIGH" : "LOW"}
-          subtitle="Global repo quality assessment"
-          trend={summary.securityRating === "D" ? "DANGER" : "SAFE"}
-          trendType={summary.securityRating === "D" ? "down" : "up"}
-          valueColor={summary.securityRating === "D" ? "var(--google-red-700)" : "var(--google-green-600)"}
+          value={riskRating?.riskRating || "N/A"}
+          subtitle=""
+          trend={
+            riskRating?.riskRating === "LOW"
+              ? "SAFE"
+              : riskRating?.riskRating === "MEDIUM"
+              ? "WARNING"
+              : "DANGER"
+          }
+          trendType={
+            riskRating?.riskRating === "LOW"
+              ? "up"
+              : "down"
+          }
+          valueColor={
+            riskRating?.color ||
+            "var(--google-green-600)"
+          }
         />
       </div>
 

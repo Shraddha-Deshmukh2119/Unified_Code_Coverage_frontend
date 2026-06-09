@@ -1,4 +1,5 @@
 import api from "./axios";
+import type { RiskRatingResponse } from "../types/riskRating";
 
 export const getSummary = () =>
   api.get("/api/dashboard/summary");
@@ -53,3 +54,9 @@ export const getAiMetricsData = () =>
 
 export const getComplexityAnalysis = () =>
   api.get("/api/complexity/results");
+
+export const getRiskRating = () =>
+  api.get<RiskRatingResponse>(
+    "/api/dashboard/risk-rating"
+  );
+
