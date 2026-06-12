@@ -79,7 +79,7 @@ export default function Dashboard() {
           trend={latestBuild?.status === "SUCCESS" ? "HEALTHY" : "CRITICAL"}
           trendType={latestBuild?.status === "SUCCESS" ? "up" : "down"}
           valueColor={latestBuild?.status === "SUCCESS" ? "var(--google-green-600)" : "var(--google-red-600)"}
-        />
+        /> 
       </div>
 
       {/* Charts Grid */}

@@ -281,8 +281,7 @@ export default function Modules() {
         style={{ 
           display: "flex", 
           gap: "24px", 
-          alignItems: "flex-start",
-          minHeight: "65vh"
+          alignItems: "flex-start"
         }}
       >
         {/* LEFT COLUMN: Coverage-percentage-based categorization */}
@@ -424,13 +423,13 @@ export default function Modules() {
         </div>
 
         {/* RIGHT COLUMN: Interactive coverage analysis breakdown */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "16px" }}>
           {selectedModule ? (
             <div 
               className="g-card" 
               style={{ 
                 animation: "fadeIn 0.3s ease-out forwards",
-                padding: "28px"
+                padding: "20px 24px"
               }}
             >
               {/* Module Header Details */}
@@ -440,8 +439,8 @@ export default function Modules() {
                   justifyContent: "space-between", 
                   alignItems: "flex-start", 
                   borderBottom: "1px solid var(--border-color)", 
-                  paddingBottom: "18px", 
-                  marginBottom: "20px" 
+                  paddingBottom: "12px", 
+                  marginBottom: "16px" 
                 }}
               >
                 <div>
@@ -480,7 +479,7 @@ export default function Modules() {
               </div>
 
               {/* Main Coverage Cards */}
-              <h3 style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <h3 style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                 Metrics Breakdown
               </h3>
               
@@ -488,11 +487,11 @@ export default function Modules() {
                 style={{ 
                   display: "grid", 
                   gridTemplateColumns: "1fr 1fr", 
-                  gap: "20px",
-                  marginBottom: "24px"
+                  gap: "16px",
+                  marginBottom: "16px"
                 }}
               >
-                <div style={{ border: "1px solid var(--border-color)", padding: "16px", borderRadius: "8px", background: "var(--grey-20)" }}>
+                <div style={{ border: "1px solid var(--border-color)", padding: "12px", borderRadius: "8px", background: "var(--grey-20)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
                     <span style={{ fontWeight: 600, color: "var(--text-secondary)" }}>Line Coverage Progress</span>
                     <strong style={{ color: "var(--text-primary)" }}>{selectedModule.lineCoverage}%</strong>
@@ -500,7 +499,7 @@ export default function Modules() {
                   <CoverageBar value={selectedModule.lineCoverage} />
                 </div>
 
-                <div style={{ border: "1px solid var(--border-color)", padding: "16px", borderRadius: "8px", background: "var(--grey-20)" }}>
+                <div style={{ border: "1px solid var(--border-color)", padding: "12px", borderRadius: "8px", background: "var(--grey-20)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "13px" }}>
                     <span style={{ fontWeight: 600, color: "var(--text-secondary)" }}>Branch Coverage Progress</span>
                     <strong style={{ color: "var(--text-primary)" }}>{selectedModule.branchCoverage}%</strong>
@@ -510,7 +509,7 @@ export default function Modules() {
               </div>
 
               {/* Covered & Missed Details Grid */}
-              <h3 style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <h3 style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                 Statement Counts
               </h3>
 
@@ -518,32 +517,32 @@ export default function Modules() {
                 style={{ 
                   display: "grid", 
                   gridTemplateColumns: "repeat(4, 1fr)", 
-                  gap: "16px",
-                  marginBottom: "24px"
+                  gap: "12px",
+                  marginBottom: "16px"
                 }}
               >
-                <div style={{ border: "1px solid var(--border-color)", padding: "14px", borderRadius: "8px", background: "var(--bg-card)", textAlign: "center" }}>
+                <div style={{ border: "1px solid var(--border-color)", padding: "10px", borderRadius: "8px", background: "var(--bg-card)", textAlign: "center" }}>
                   <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 600 }}>Covered Lines</span>
                   <p style={{ fontSize: "20px", fontWeight: 700, color: "var(--google-green-600)", margin: "4px 0 0" }}>
                     {selectedModule.coveredLines ?? "-"}
                   </p>
                 </div>
 
-                <div style={{ border: "1px solid var(--border-color)", padding: "14px", borderRadius: "8px", background: "var(--bg-card)", textAlign: "center" }}>
+                <div style={{ border: "1px solid var(--border-color)", padding: "10px", borderRadius: "8px", background: "var(--bg-card)", textAlign: "center" }}>
                   <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 600 }}>Missed Lines</span>
                   <p style={{ fontSize: "20px", fontWeight: 700, color: "var(--google-red-600)", margin: "4px 0 0" }}>
                     {selectedModule.missedLines ?? "-"}
                   </p>
                 </div>
 
-                <div style={{ border: "1px solid var(--border-color)", padding: "14px", borderRadius: "8px", background: "var(--bg-card)", textAlign: "center" }}>
+                <div style={{ border: "1px solid var(--border-color)", padding: "10px", borderRadius: "8px", background: "var(--bg-card)", textAlign: "center" }}>
                   <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 600 }}>Covered Branches</span>
                   <p style={{ fontSize: "20px", fontWeight: 700, color: "var(--google-green-600)", margin: "4px 0 0" }}>
                     {selectedModule.coveredBranches ?? "-"}
                   </p>
                 </div>
 
-                <div style={{ border: "1px solid var(--border-color)", padding: "14px", borderRadius: "8px", background: "var(--bg-card)", textAlign: "center" }}>
+                <div style={{ border: "1px solid var(--border-color)", padding: "10px", borderRadius: "8px", background: "var(--bg-card)", textAlign: "center" }}>
                   <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: 600 }}>Missed Branches</span>
                   <p style={{ fontSize: "20px", fontWeight: 700, color: "var(--google-red-600)", margin: "4px 0 0" }}>
                     {selectedModule.missedBranches ?? "-"}
@@ -556,10 +555,10 @@ export default function Modules() {
                 style={{ 
                   display: "grid", 
                   gridTemplateColumns: "1fr 1fr", 
-                  gap: "20px"
+                  gap: "16px"
                 }}
               >
-                <div className="g-card" style={{ padding: "16px", boxShadow: "none", border: "1px solid var(--border-color)" }}>
+                <div className="g-card" style={{ padding: "12px", boxShadow: "none", border: "1px solid var(--border-color)" }}>
                   <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--text-secondary)", textTransform: "uppercase" }}>Heatmap Color status</span>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "8px" }}>
                     <div style={{
@@ -572,7 +571,7 @@ export default function Modules() {
                   </div>
                 </div>
 
-                <div className="g-card" style={{ padding: "16px", boxShadow: "none", border: "1px solid var(--border-color)" }}>
+                <div className="g-card" style={{ padding: "12px", boxShadow: "none", border: "1px solid var(--border-color)" }}>
                   <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--text-secondary)", textTransform: "uppercase" }}>Quality Assessment</span>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "8px", color: selectedModule.status === "HEALTHY" ? "var(--google-green-600)" : "var(--google-red-600)" }}>
                     <Sparkles size={14} />

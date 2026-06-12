@@ -196,9 +196,12 @@ a:hover {
 
 .content-pane {
   flex: 1;
-  padding: 36px 32px 60px 32px;
+  padding: 28px 28px 48px 28px;
   background-color: var(--bg-app);
   animation: fadeIn 0.4s ease-out forwards;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Premium Top Progress Loader Bar simulating page transitions */
@@ -930,9 +933,15 @@ a:hover {
 /* ══════════════════════════════════════════════════════════════
    Responsive Breakpoints
    ══════════════════════════════════════════════════════════════ */
+@media (max-width: 1400px) {
+  .detail-grid-2col {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 @media (max-width: 1200px) {
   .content-pane {
-    padding: 28px 20px 48px 20px;
+    padding: 20px 18px 36px 18px;
   }
 }
 
