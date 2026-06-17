@@ -696,7 +696,17 @@ export default function AIInsights() {
       ) as HTMLElement | null;
       if (!highlighted) return;
       
-      highlighted.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const containerRect = container.getBoundingClientRect();
+      const highlightedRect = highlighted.getBoundingClientRect();
+      const currentScrollTop = container.scrollTop;
+      
+      const relativeTop =
+        highlightedRect.top - containerRect.top + currentScrollTop;
+        
+      const centerOffset =
+        relativeTop - container.clientHeight / 2 + highlighted.clientHeight / 2;
+        
+      container.scrollTop = Math.max(0, centerOffset);
     }, 150);
     return () => clearTimeout(timer);
   }, [selectedIssueSource, activeTab]);

@@ -74,9 +74,9 @@ export default function Modules() {
         const uniqueModules = dataList.filter((mod: any) => {
           const key = mod.moduleName || "";
           
-          // Filter out .cc, gmock, and gtest files as requested
+          // Filter out .cc, gmock, gtest, and test files as requested
           const lowerKey = key.toLowerCase();
-          if (lowerKey.endsWith(".cc") || lowerKey.includes("gmock") || lowerKey.includes("gtest")) {
+          if (lowerKey.endsWith(".cc") || lowerKey.includes("gmock") || lowerKey.includes("gtest") || lowerKey.includes("test")) {
             return false;
           }
 
@@ -131,6 +131,26 @@ export default function Modules() {
       const searchMatch = module.moduleName.toLowerCase().includes(search.toLowerCase());
       const languageMatch = value === "ALL" || module.language === value;
       const riskMatch = riskFilter === "ALL" || module.riskLevel === riskFilter;
+      return searchMatch && languageMatch && riskMatch;
+    });
+    
+    if (newFiltered.length > 0) {
+      // Auto-select using priority: High → Medium → Low → Critical
+      const best = selectBestModule(newFiltered);
+      setSelectedModuleId(best ? best.id : null);
+    } else {
+      setSelectedModuleId(null);
+    }
+  };
+
+  const handleRiskChange = (value: string) => {
+    setRiskFilter(value);
+
+    // Auto-select the first module matching the new risk filter
+    const newFiltered = modules.filter((module) => {
+      const searchMatch = module.moduleName.toLowerCase().includes(search.toLowerCase());
+      const languageMatch = languageFilter === "ALL" || module.language === languageFilter;
+      const riskMatch = value === "ALL" || module.riskLevel === value;
       return searchMatch && languageMatch && riskMatch;
     });
     
@@ -255,7 +275,7 @@ export default function Modules() {
           <span style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--text-secondary)" }}>Risk Level:</span>
           <select
             value={riskFilter}
-            onChange={(e) => setRiskFilter(e.target.value)}
+            onChange={(e) => handleRiskChange(e.target.value)}
             className="g-select"
             style={{ minWidth: "120px", padding: "8px 12px" }}
           >
@@ -460,22 +480,30 @@ export default function Modules() {
                   </div>
                 </div>
 
-                <div 
-                  className="bmc-badge-orange"
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    padding: "10px 16px",
-                    borderRadius: "8px",
-                    fontWeight: 700
-                  }}
-                >
-                  <span style={{ fontSize: "10px", textTransform: "uppercase", opacity: 0.8 }}>Line Coverage</span>
-                  <span style={{ fontSize: "24px", fontFamily: "var(--font-display)", fontWeight: 800 }}>
-                    {selectedModule.lineCoverage}%
-                  </span>
-                </div>
+                {(() => {
+                  const coverage = selectedModule.lineCoverage ?? 0;
+                  const band = COVERAGE_BANDS.find(b => coverage >= b.min && coverage <= b.max) || COVERAGE_BANDS[3];
+                  return (
+                    <div 
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        padding: "10px 16px",
+                        borderRadius: "8px",
+                        fontWeight: 700,
+                        backgroundColor: band.bgColor,
+                        color: band.color,
+                        border: `1px solid ${band.borderColor}`
+                      }}
+                    >
+                      <span style={{ fontSize: "10px", textTransform: "uppercase", opacity: 0.8 }}>Line Coverage</span>
+                      <span style={{ fontSize: "24px", fontFamily: "var(--font-display)", fontWeight: 800 }}>
+                        {selectedModule.lineCoverage}%
+                      </span>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Main Coverage Cards */}

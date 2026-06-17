@@ -7,32 +7,23 @@ import {
 } from "recharts";
 
 export default function SeverityChart({
-  issues,
+  summary,
 }: any) {
 
   const data = [
     {
       name: "Critical",
-      value: issues.filter(
-        (i:any)=>
-          i.severity==="CRITICAL"
-      ).length,
+      value: summary?.criticalIssues || 0,
     },
 
     {
       name: "Major",
-      value: issues.filter(
-        (i:any)=>
-          i.severity==="MAJOR"
-      ).length,
+      value: summary?.majorIssues || 0,
     },
 
     {
       name: "Minor",
-      value: issues.filter(
-        (i:any)=>
-          i.severity==="MINOR"
-      ).length,
+      value: summary?.minorIssues || 0,
     },
   ];
 

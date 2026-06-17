@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef } from "react";
 import MainLayout from "../layouts/MainLayout";
 import MetricCard from "../components/cards/MetricCard";
 import SeverityBadge from "../components/common/SeverityBadge";
@@ -398,7 +398,7 @@ export default function CodeHealth() {
         </div>
 
         <div className="g-card" style={{ padding: "20px" }}>
-          <SeverityChart issues={issues} />
+          <SeverityChart summary={summary} />
         </div>
       </div>
 
@@ -443,13 +443,13 @@ export default function CodeHealth() {
             <h2 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}>Issue Inspector Explorer</h2>
             <div style={{ display: "flex", gap: "8px" }}>
               <span className="g-badge g-badge-red" style={{ fontSize: "11px" }}>
-                {issues.filter((i) => i.severity === "CRITICAL").length} Critical
+                {summary.criticalIssues ?? 0} Critical
               </span>
               <span className="g-badge g-badge-yellow" style={{ fontSize: "11px" }}>
-                {issues.filter((i) => i.severity === "MAJOR").length} Major
+                {summary.majorIssues ?? 0} Major
               </span>
               <span className="g-badge g-badge-blue" style={{ fontSize: "11px" }}>
-                {issues.filter((i) => i.severity === "MINOR").length} Minor
+                {summary.minorIssues ?? 0} Minor
               </span>
             </div>
           </div>

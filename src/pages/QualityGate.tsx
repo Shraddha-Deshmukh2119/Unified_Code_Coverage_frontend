@@ -3,13 +3,15 @@ import { useEffect, useState } from "react";
 import MainLayout from "../layouts/MainLayout";
 
 import RuleStatusBadge from "../components/common/RuleStatusBadge";
-import { getSonarIssues } from "../api/dashboardApi";
+
 import QualityScoreTrendChart
 from "../components/charts/QualityScoreTrendChart";
 
 import {
   getQualityGate,
   getQualityGateHistory,
+  getSonarSummary,
+  getSummary,
 } from "../api/dashboardApi";
 
 export default function QualityGate() {
@@ -18,7 +20,7 @@ export default function QualityGate() {
   const [history, setHistory] = useState<any[]>([]);
 const [bugCount, setBugCount] = useState<number>(0);
 const [vulnCount, setVulnCount] = useState<number>(0);
-const [codeSmellCount, setCodeSmellCount] = useState<number>(0);
+const [coverage, setCoverage] = useState<number | string>("-");
 
   const [search, setSearch] = useState("");
 
@@ -41,17 +43,16 @@ const [statusFilter, setStatusFilter] =
     .catch(console.error);
 
   // Fetch Sonar issues and compute unique counts
-  getSonarIssues()
+  getSonarSummary()
     .then((res) => {
-      const issues = res.data;
-      const uniqueByFile = (list: any[], type: string) => {
-        const map = new Map();
-        list.filter((i) => (i.type || '').toUpperCase() === type.toUpperCase()).forEach((i) => map.set(i.file, i));
-        return Array.from(map.values());
-      };
-      setBugCount(uniqueByFile(issues, "BUG").length);
-      setVulnCount(uniqueByFile(issues, "VULNERABILITY").length);
-      setCodeSmellCount(uniqueByFile(issues, "CODE_SMELL").length);
+      setBugCount(res.data.bugs || 0);
+      setVulnCount(res.data.vulnerabilities || 0);
+    })
+    .catch(console.error);
+
+  getSummary()
+    .then((res) => {
+      setCoverage(res.data.overallCoverage || "-");
     })
     .catch(console.error);
 }, []);
@@ -132,7 +133,7 @@ console.log("Filtered:", filteredHistory);
             Vulnerabilities: <strong style={{ color: "var(--google-red-700)", fontSize: "15px" }}>{vulnCount}</strong>
           </div>
           <div>
-            Code Smells: <strong style={{ color: "var(--google-blue-700)", fontSize: "15px" }}>{codeSmellCount}</strong>
+            Coverage: <strong style={{ color: "var(--google-blue-700)", fontSize: "15px" }}>{coverage !== "-" ? `${coverage}%` : "-"}</strong>
           </div>
         </div>
       </div>
