@@ -610,11 +610,15 @@ a:hover {
 }
 
 .code-line.highlighted {
-  background-color: #7f1d1d;
+  background-color: rgba(220, 38, 38, 0.25) !important;
+  border-left: 3px solid #ef4444 !important;
 }
 .code-line.highlighted .code-line-number {
-  background-color: #991b1b;
-  color: #ffffff;
+  background-color: #7f1d1d;
+  color: #fca5a5;
+}
+.code-line.highlighted .code-line-content {
+  color: #fca5a5;
 }
 
 /* BMC Orange & Dark Theme UI Helpers */

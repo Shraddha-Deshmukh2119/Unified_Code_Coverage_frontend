@@ -59,6 +59,7 @@ export default function SeverityChart({
             innerRadius={60}
             paddingAngle={3}
             labelLine={false}
+            animationDuration={400}
             label={({ name, value }) => value > 0 ? `${name}: ${value}` : ""}
           >
             {data.map((_, index) => (
