@@ -29,18 +29,12 @@ export default function IssueDistributionChart({
       value:
         summary.codeSmells,
     },
-    {
-      name: "Hotspots",
-      value:
-        summary.securityHotspots,
-    },
   ];
 
   const colors = [
     "var(--google-red-600)",
     "var(--google-red-700)",
     "var(--google-blue-600)",
-    "var(--google-yellow-600)",
   ];
 
   return (

@@ -738,9 +738,9 @@ export default function AIInsights() {
     return ["All", ...Array.from(set).sort()];
   }, [complexityList]);
 
-  // Apply search and filter for complexity modules list
+  // Apply search, filter, and sort by complexity severity for complexity modules list
   const displayedModules = useMemo(() => {
-    return complexityList.filter((mod) => {
+    const filtered = complexityList.filter((mod) => {
       const matchesSearch =
         mod.moduleName.toLowerCase().includes(moduleSearchQuery.toLowerCase()) ||
         mod.filePath.toLowerCase().includes(moduleSearchQuery.toLowerCase());
@@ -748,6 +748,24 @@ export default function AIInsights() {
       const matchesLanguage = languageFilter === "All" || getLanguage(mod.filePath) === languageFilter;
 
       return matchesSearch && matchesComplexity && matchesLanguage;
+    });
+
+    return filtered.sort((a, b) => {
+      const getSeverity = (complexity: string) => {
+        if (!complexity) return 0;
+        const c = complexity.toLowerCase().replace(/\s/g, '');
+        if (c === "o(n*k)" || c === "o(n*m)" || c === "o(k*n)" || c === "o(m*n)") return 10;
+        if (c === "o(1)") return 1;
+        if (c === "o(logn)") return 2;
+        if (c === "o(n)") return 3;
+        if (c === "o(nlogn)") return 4;
+        if (c === "o(n^2)") return 5;
+        if (c === "o(n^3)") return 6;
+        if (c === "o(2^n)") return 7;
+        if (c === "o(n!)") return 8;
+        return 9; // Complex or unknown treated as high severity
+      };
+      return getSeverity(b.timeComplexity) - getSeverity(a.timeComplexity);
     });
   }, [complexityList, moduleSearchQuery, complexityFilter, languageFilter]);
 

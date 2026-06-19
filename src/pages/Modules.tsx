@@ -363,7 +363,7 @@ export default function Modules() {
           {/* Coverage band accordions */}
           {COVERAGE_BANDS.map((band) => {
             const bandModules = groupedByBand[band.key];
-            const isExpanded = !!expandedBands[band.key];
+            const isExpanded = (search.trim() !== "" && bandModules.length > 0) || !!expandedBands[band.key];
             const BandIcon = BAND_ICONS[band.key];
 
             return (
